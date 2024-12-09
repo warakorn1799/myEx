@@ -2,12 +2,10 @@ from burp import IBurpExtender, IHttpListener
 from RequestViewerGUI2 import RequestViewerGUI
 
 class BurpExtender(IBurpExtender, IHttpListener):
-    def __init__(self):
-        self.gui = RequestViewerGUI()
-
     def registerExtenderCallbacks(self, callbacks):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
+        self.gui = RequestViewerGUI(self.helpers)
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if messageIsRequest:
@@ -15,9 +13,11 @@ class BurpExtender(IBurpExtender, IHttpListener):
             requestInfo = self.helpers.analyzeRequest(request)
             headers = requestInfo.getHeaders()
             body = request[requestInfo.getBodyOffset():].tostring()
-            self.gui.setRequestData(headers, body)
+            self.gui.setRequestData(headers, body, message)
         else:
-            return
+            response = message.getResponse()
+            if response is not None:
+                responseInfo = self.helpers.analyzeResponse(response)
 
-if __name__ == '__main__':
-    pass
+                print("Response received:")
+                print(self.helpers.bytesToString(response).encode('utf-8').decode('utf-8'))

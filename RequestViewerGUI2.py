@@ -1,11 +1,13 @@
 from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextField, JComboBox, JButton
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
+import time
 
 class RequestViewerGUI:
-    def __init__(self):
+    def __init__(self, helpers):
+        self.helpers = helpers
         self.initialize_gui()
-    
+
     def initialize_gui(self):
         self.frame = JFrame("Request Details")
         self.frame.setSize(1000, 600)
@@ -15,7 +17,7 @@ class RequestViewerGUI:
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
-        
+
         top_label = JLabel("Your Request")
         top_label.setFont(Font("Arial", Font.BOLD, 16)) 
         top_label.setForeground(Color.BLACK)
@@ -44,7 +46,7 @@ class RequestViewerGUI:
         panel_bottom.setBackground(Color.GRAY)
         panel_bottom.setBorder(EmptyBorder(10, 10, 10, 10))
         panel_bottom.setPreferredSize(Dimension(1000, 80))
-        
+
         panel_bottom_left = JPanel()
         panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
         panel_bottom_left.setBackground(Color.GRAY)
@@ -76,10 +78,10 @@ class RequestViewerGUI:
 
         button1 = JButton("Encrypt")
         button2 = JButton("Decrypt")
-        
+
         button1.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
         button2.addActionListener(lambda e: self.decrypt_action(text_field, dropdown))
-        
+
         panel_bottom_right.add(button1)
         panel_bottom_right.add(button2)
 
@@ -96,6 +98,17 @@ class RequestViewerGUI:
         print("KEY = {}".format(str(text_field.getText())))
         print("Algorithm = {}".format(str(dropdown.getSelectedItem())))
 
-    def setRequestData(self, header, body):
-        print(body)
-        self.text_area1.setText("\n".join(header) + "\n\n" + body)
+    def setRequestData(self, header, body, message):
+        header.add("Origin: www.example.com")
+	print('Processing request...')
+        countdown = 5
+
+        for i in range(countdown, -1, -1):
+            print(i)
+            time.sleep(1)
+
+        updatedRequest = self.helpers.buildHttpMessage(header, body)
+        message.setRequest(updatedRequest)
+        print("Updated request sent:")
+        print(self.helpers.bytesToString(updatedRequest))
+
