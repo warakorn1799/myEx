@@ -7,11 +7,7 @@ class RequestViewerGUI:
     def __init__(self, helpers):
         self.helpers = helpers
         self.initialize_gui()
-<<<<<<< HEAD
         self.updatedRequest = None
-=======
-	self.updatedRequest = None
->>>>>>> 240ce5f1a61dd8ade2c76f735c3f814dc2ae3169
         self.message = None
 
     def initialize_gui(self):
@@ -109,7 +105,6 @@ class RequestViewerGUI:
             print("No updated request available to send.")
 
     def decrypt_action(self, button, text_field, dropdown):
-<<<<<<< HEAD
         if text_field.getText() == "":
             print("0")
             if button.isSelected():
@@ -124,22 +119,6 @@ class RequestViewerGUI:
                 print("0")
                 button.setText("Decrypt off")
                 button.setSelected(False)
-=======
-        if text_field.getText()=="":
-	    print("0")
-	    if button.isSelected():
-                button.setSelected(False)
-                button.setText("Decrypt off")
-        else:
-	    if button.isSelected():
-		print("1")
-		button.setText("Decrypt on")
-		button.setSelected(True)
-            else:
-		print("0")
-		button.setText("Decrypt off")
-		button.setSelected(False)
->>>>>>> 240ce5f1a61dd8ade2c76f735c3f814dc2ae3169
 
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
@@ -150,9 +129,5 @@ class RequestViewerGUI:
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
         time.sleep(300)
-<<<<<<< HEAD
         # self.message.setRequest(self.updatedRequest)
-=======
-        #self.message.setRequest(self.updatedRequest)
->>>>>>> 240ce5f1a61dd8ade2c76f735c3f814dc2ae3169
         print("setRequestData Done")
