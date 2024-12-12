@@ -1,5 +1,6 @@
 from burp import IBurpExtender, IHttpListener
 from RequestViewerGUI2 import RequestViewerGUI
+import time
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
@@ -14,6 +15,8 @@ class BurpExtender(IBurpExtender, IHttpListener):
             headers = requestInfo.getHeaders()
             body = request[requestInfo.getBodyOffset():].tostring()
             self.gui.setRequestData(headers, body, message)
+            self.waitForEncryptButtonPress()
+
         else:
             response = message.getResponse()
             if response is not None:
@@ -24,3 +27,13 @@ class BurpExtender(IBurpExtender, IHttpListener):
                     print("skip")
                 else:
                     print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+
+    def waitForEncryptButtonPress(self):
+        while True:
+            if self.gui.isEncryptButtonPressed():
+                print("press")
+                self.gui.resetEncryptButton()
+                break
+            else:
+                print("not press")
+                time.sleep(1)  

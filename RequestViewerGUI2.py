@@ -9,6 +9,7 @@ class RequestViewerGUI:
         self.initialize_gui()
         self.updatedRequest = None
         self.message = None
+        self.encryptButtonPressed = False
 
     def initialize_gui(self):
         self.frame = JFrame("Request Details")
@@ -96,11 +97,18 @@ class RequestViewerGUI:
 
         self.frame.setVisible(True)
 
+    def isEncryptButtonPressed(self):
+        return self.encryptButtonPressed
+
+    def resetEncryptButton(self):
+        self.encryptButtonPressed = False
+        
     def encrypt_action(self, text_field, dropdown):
         if self.updatedRequest and self.message:
             self.message.setRequest(self.updatedRequest)
             print("Updated request sent:")
             print(self.helpers.bytesToString(self.updatedRequest))
+            self.encryptButtonPressed = True 
         else:
             print("No updated request available to send.")
 
@@ -128,6 +136,6 @@ class RequestViewerGUI:
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
-        time.sleep(300)
+        #time.sleep(300)
         # self.message.setRequest(self.updatedRequest)
         print("setRequestData Done")
