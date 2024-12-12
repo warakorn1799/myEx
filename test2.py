@@ -20,4 +20,8 @@ class BurpExtender(IBurpExtender, IHttpListener):
                 responseInfo = self.helpers.analyzeResponse(response)
 
                 print("Response received:")
-                print(self.helpers.bytesToString(response).encode('utf-8').decode('utf-8'))
+		if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
+                    print("skip")
+                else:
+                    print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+
