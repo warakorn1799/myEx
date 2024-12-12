@@ -1,11 +1,15 @@
-from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextField, JComboBox, JButton
+from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextField, JComboBox, JButton, JToggleButton
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
+import time
 
 class RequestViewerGUI:
-    def __init__(self):
+    def __init__(self, helpers):
+        self.helpers = helpers
         self.initialize_gui()
-    
+        self.updatedRequest = None
+        self.message = None
+
     def initialize_gui(self):
         self.frame = JFrame("Request Details")
         self.frame.setSize(1000, 600)
@@ -15,7 +19,7 @@ class RequestViewerGUI:
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
-        
+
         top_label = JLabel("Your Request")
         top_label.setFont(Font("Arial", Font.BOLD, 16)) 
         top_label.setForeground(Color.BLACK)
@@ -44,7 +48,7 @@ class RequestViewerGUI:
         panel_bottom.setBackground(Color.GRAY)
         panel_bottom.setBorder(EmptyBorder(10, 10, 10, 10))
         panel_bottom.setPreferredSize(Dimension(1000, 80))
-        
+
         panel_bottom_left = JPanel()
         panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
         panel_bottom_left.setBackground(Color.GRAY)
@@ -74,12 +78,12 @@ class RequestViewerGUI:
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
         panel_bottom_right.setBackground(Color.GRAY)
 
-        button1 = JButton("Encrypt")
-        button2 = JButton("Decrypt")
-        
-        button1.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
-        button2.addActionListener(lambda e: self.decrypt_action(text_field, dropdown))
-        
+        button2 = JButton("Encrypt")
+        button1 = JToggleButton("Decrypt off")
+
+        button2.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
+        button1.addActionListener(lambda e: self.decrypt_action(button1, text_field, dropdown))
+
         panel_bottom_right.add(button1)
         panel_bottom_right.add(button2)
 
@@ -93,9 +97,37 @@ class RequestViewerGUI:
         self.frame.setVisible(True)
 
     def encrypt_action(self, text_field, dropdown):
-        print("KEY = {}".format(str(text_field.getText())))
-        print("Algorithm = {}".format(str(dropdown.getSelectedItem())))
+        if self.updatedRequest and self.message:
+            self.message.setRequest(self.updatedRequest)
+            print("Updated request sent:")
+            print(self.helpers.bytesToString(self.updatedRequest))
+        else:
+            print("No updated request available to send.")
 
-    def setRequestData(self, header, body):
-        print(body)
-        self.text_area1.setText("\n".join(header) + "\n\n" + body)
+    def decrypt_action(self, button, text_field, dropdown):
+        if text_field.getText() == "":
+            print("0")
+            if button.isSelected():
+                button.setSelected(False)
+                button.setText("Decrypt off")
+        else:
+            if button.isSelected():
+                print("1")
+                button.setText("Decrypt on")
+                button.setSelected(True)
+            else:
+                print("0")
+                button.setText("Decrypt off")
+                button.setSelected(False)
+
+    def setRequestData(self, header, body, message):
+        request_data = "\n".join(header) + "\n\n" + body
+        self.text_area1.setText(request_data)
+
+        header.add("Origin: www.example.com")
+
+        self.updatedRequest = self.helpers.buildHttpMessage(header, body)
+        self.message = message
+        time.sleep(300)
+        # self.message.setRequest(self.updatedRequest)
+        print("setRequestData Done")
