@@ -18,9 +18,19 @@ class BurpExtender(IBurpExtender, IHttpListener):
             response = message.getResponse()
             if response is not None:
                 responseInfo = self.helpers.analyzeResponse(response)
+<<<<<<< HEAD
 
                 print("Response received:")
                 if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
                     print("skip")
                 else:
                     print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+=======
+
+                print("Response received:")
+		if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
+                    print("skip")
+                else:
+                    print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+
+>>>>>>> 240ce5f1a61dd8ade2c76f735c3f814dc2ae3169
