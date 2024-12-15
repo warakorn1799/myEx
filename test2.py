@@ -1,12 +1,25 @@
 from burp import IBurpExtender, IHttpListener
 from RequestViewerGUI2 import RequestViewerGUI
 import time
+#from EncryptDncrypt import AESCipher
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
+
+        #aes_cipher = AESCipher(192)
+        #plaintext = "Hello world"
+        #print("Plaintext:", plaintext)
+
+        # Encrypt
+        #ciphertext = aes_cipher.encrypt(plaintext)
+        #print("Ciphertext:", ciphertext)
+
+        # Decrypt
+        #decrypted_text = aes_cipher.decrypt(ciphertext)
+        #print("Decrypted:", decrypted_text)
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if messageIsRequest:
@@ -16,11 +29,9 @@ class BurpExtender(IBurpExtender, IHttpListener):
             body = request[requestInfo.getBodyOffset():].tostring()
             self.gui.setRequestData(headers, body, message)
             self.waitForEncryptButtonPress()
-
         else:
             response = message.getResponse()
             if response is not None:
-                responseInfo = self.helpers.analyzeResponse(response)
 
                 print("Response received:")
                 if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
@@ -31,9 +42,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
     def waitForEncryptButtonPress(self):
         while True:
             if self.gui.isEncryptButtonPressed():
-                print("press")
                 self.gui.resetEncryptButton()
                 break
             else:
-                print("not press")
                 time.sleep(1)  

@@ -2,6 +2,7 @@ from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextFie
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
 import time
+from EncryptGUI import EncryptGUI
 
 class RequestViewerGUI:
     def __init__(self, helpers):
@@ -10,6 +11,8 @@ class RequestViewerGUI:
         self.updatedRequest = None
         self.message = None
         self.encryptButtonPressed = False
+        self.header = None
+        self.gui = EncryptGUI('', '', '', '', '')
 
     def initialize_gui(self):
         self.frame = JFrame("Request Details")
@@ -98,20 +101,22 @@ class RequestViewerGUI:
         self.frame.setVisible(True)
 
     def isEncryptButtonPressed(self):
-        return self.encryptButtonPressed
+        while True:
+            if self.gui.isSendButtonPressed():
+                print("press")
+                self.gui.resetSendButton()   
+                return True
+            else:
+                time.sleep(1)
 
     def resetEncryptButton(self):
         self.encryptButtonPressed = False
         
     def encrypt_action(self, text_field, dropdown):
-        if self.updatedRequest and self.message:
-            self.message.setRequest(self.updatedRequest)
-            print("Updated request sent:")
-            print(self.helpers.bytesToString(self.updatedRequest))
-            self.encryptButtonPressed = True 
-        else:
-            print("No updated request available to send.")
+        self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
+        self.gui.start()
 
+ 
     def decrypt_action(self, button, text_field, dropdown):
         if text_field.getText() == "":
             print("0")
@@ -132,10 +137,11 @@ class RequestViewerGUI:
         request_data = "\n".join(header) + "\n\n" + body
         self.text_area1.setText(request_data)
 
+        self.header = header
+        self.body = body
         header.add("Origin: www.example.com")
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
         #time.sleep(300)
         # self.message.setRequest(self.updatedRequest)
-        print("setRequestData Done")
