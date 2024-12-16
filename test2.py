@@ -34,10 +34,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
             if response is not None:
 
                 print("Response received:")
-                if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
-                    print("skip")
-                else:
-                    print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+                print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
 
     def waitForEncryptButtonPress(self):
         while True:
@@ -45,4 +42,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
                 self.gui.resetEncryptButton()
                 break
             else:
-                time.sleep(1)  
+                time.sleep(1)
+
+    def unRegisterExtenderCallbacks(self, callbacks):
+        callbacks.unregisterHttpListener(self)

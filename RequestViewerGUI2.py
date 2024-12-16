@@ -53,9 +53,9 @@ class RequestViewerGUI:
         panel_bottom.setBorder(EmptyBorder(10, 10, 10, 10))
         panel_bottom.setPreferredSize(Dimension(1000, 80))
 
-        panel_bottom_left = JPanel()
-        panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
-        panel_bottom_left.setBackground(Color.GRAY)
+        self.panel_bottom_left = JPanel()
+        self.panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
+        self.panel_bottom_left.setBackground(Color.GRAY)
 
         font = Font("Arial", Font.PLAIN, 14)
 
@@ -70,13 +70,14 @@ class RequestViewerGUI:
         label_dropdown.setFont(font)
         label_dropdown.setForeground(Color.WHITE)
 
-        dropdown = JComboBox(["AES", "RSA", "ECC"])
+        dropdown = JComboBox(["RSA", "AES(CBC)", "AES(CFB)", "AES(GCM)"])
         dropdown.setFont(font)
+        dropdown.addActionListener(lambda e: self.onSelection(e))
 
-        panel_bottom_left.add(label_input)
-        panel_bottom_left.add(text_field)
-        panel_bottom_left.add(label_dropdown)
-        panel_bottom_left.add(dropdown)
+        self.panel_bottom_left.add(label_input)
+        self.panel_bottom_left.add(text_field)
+        self.panel_bottom_left.add(label_dropdown)
+        self.panel_bottom_left.add(dropdown)
 
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
@@ -91,7 +92,7 @@ class RequestViewerGUI:
         panel_bottom_right.add(button1)
         panel_bottom_right.add(button2)
 
-        panel_bottom.add(panel_bottom_left, BorderLayout.WEST)
+        panel_bottom.add(self.panel_bottom_left, BorderLayout.WEST)
         panel_bottom.add(panel_bottom_right, BorderLayout.EAST)
 
         self.frame.add(panel_top, BorderLayout.NORTH)
@@ -99,24 +100,56 @@ class RequestViewerGUI:
         self.frame.add(panel_bottom, BorderLayout.SOUTH)
 
         self.frame.setVisible(True)
+	
+        self.font = Font("Arial", Font.PLAIN, 14)
+
+    def onSelection(self, event):
+        dropdown = event.getSource()
+        selectedItem = dropdown.getSelectedItem()
+        print("Algorithm selected:", selectedItem)
+
+        if selectedItem == "AES(CBC)":
+            labelIV = JLabel("IV")
+            labelIV.setFont(self.font)
+            labelIV.setForeground(Color.WHITE)
+
+            text_field2 = JTextField(30)
+            text_field2.setFont(self.font)
+
+            self.panel_bottom_left.add(labelIV)
+            self.panel_bottom_left.add(text_field2)
+        else:
+            if labelIV and text_field2:
+                self.panel_bottom_left.remove(labelIV)
+                self.panel_bottom_left.remove(text_field2)
+
+            self.panel_bottom_left.revalidate()
+            self.panel_bottom_left.repaint()
 
     def isEncryptButtonPressed(self):
         while True:
             if self.gui.isSendButtonPressed():
-                print("press")
-                self.gui.resetSendButton()   
+                self.gui.resetSendButton()
                 return True
             else:
                 time.sleep(1)
 
     def resetEncryptButton(self):
         self.encryptButtonPressed = False
-        
-    def encrypt_action(self, text_field, dropdown):
-        self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
-        self.gui.start()
 
- 
+    def encrypt_action(self, text_field, dropdown):
+        if self.updatedRequest and self.message:
+            self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
+            self.gui.start()
+        else:
+            from javax.swing import JOptionPane
+            JOptionPane.showMessageDialog(
+                None,
+                "No Request data found. Please ensure a request is selected or available.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            )
+
     def decrypt_action(self, button, text_field, dropdown):
         if text_field.getText() == "":
             print("0")
@@ -143,5 +176,3 @@ class RequestViewerGUI:
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
-        #time.sleep(300)
-        # self.message.setRequest(self.updatedRequest)
