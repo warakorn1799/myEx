@@ -1,7 +1,7 @@
 from burp import IBurpExtender, IHttpListener
 from RequestViewerGUI2 import RequestViewerGUI
 import time
-#from EncryptDncrypt import AESCipher
+from EncryptDecrypt import AESECB
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
@@ -9,17 +9,17 @@ class BurpExtender(IBurpExtender, IHttpListener):
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
 
-        #aes_cipher = AESCipher(192)
-        #plaintext = "Hello world"
-        #print("Plaintext:", plaintext)
+        aes_cipher = AESECB(192)
+        plaintext = "Hello world"
+        print("Plaintext:", plaintext)
 
         # Encrypt
-        #ciphertext = aes_cipher.encrypt(plaintext)
-        #print("Ciphertext:", ciphertext)
+        ciphertext = aes_cipher.encrypt(plaintext)
+	print("Ciphertext: {}".format(str(ciphertext)))
 
         # Decrypt
-        #decrypted_text = aes_cipher.decrypt(ciphertext)
-        #print("Decrypted:", decrypted_text)
+        decrypted_text = aes_cipher.decrypt(ciphertext)
+	print("Decrypted: {}".format(str(decrypted_text)))
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if messageIsRequest:
@@ -34,10 +34,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
             if response is not None:
 
                 print("Response received:")
-                if "image/x-icon" in self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'):
-                    print("skip")
-                else:
-                    print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
+                print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
 
     def waitForEncryptButtonPress(self):
         while True:
@@ -45,4 +42,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
                 self.gui.resetEncryptButton()
                 break
             else:
-                time.sleep(1)  
+                time.sleep(1)
+
+    def unRegisterExtenderCallbacks(self, callbacks):
+        callbacks.unregisterHttpListener(self)
