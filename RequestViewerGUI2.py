@@ -25,7 +25,7 @@ class RequestViewerGUI:
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
 
         top_label = JLabel("Your Request")
-        top_label.setFont(Font("Arial", Font.BOLD, 16)) 
+        top_label.setFont(Font("Arial", Font.BOLD, 16))
         top_label.setForeground(Color.BLACK)
         top_label.setBorder(EmptyBorder(10, 0, 10, 0))
         panel_top.add(top_label, BorderLayout.NORTH)
@@ -39,7 +39,7 @@ class RequestViewerGUI:
 
         panel_middle = JPanel()
         panel_middle.setLayout(BorderLayout())
-        panel_middle.setBorder(EmptyBorder(10, 10, 10, 10)) 
+        panel_middle.setBorder(EmptyBorder(10, 10, 10, 10))
         self.text_area2 = JTextArea()
         self.text_area2.setEditable(True)
         self.text_area2.setText("--None--")
@@ -105,11 +105,11 @@ class RequestViewerGUI:
 
         self.text_field2 = JTextField(30)
         self.text_field2.setFont(font)
-	self.text_field2.setEnabled(False)
+        self.text_field2.setEnabled(False)
         self.text_field2.setBackground(Color.LIGHT_GRAY)
 
         panel_bottom_label.add(label_me)
-	panel_bottom_label.add(self.text_field2)
+        panel_bottom_label.add(self.text_field2)
 
         panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
@@ -126,10 +126,10 @@ class RequestViewerGUI:
 
         if selectedItem == "AES(CBC)":
             self.text_field2.setEnabled(True)
-	    self.text_field2.setBackground(Color.WHITE)
+            self.text_field2.setBackground(Color.WHITE)
         else:
             self.text_field2.setEnabled(False)
-	    self.text_field2.setBackground(Color.LIGHT_GRAY)
+            self.text_field2.setBackground(Color.LIGHT_GRAY)
 
     def isEncryptButtonPressed(self):
         while True:

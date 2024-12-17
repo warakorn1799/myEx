@@ -13,7 +13,7 @@ class EncryptGUI:
         self.dialog.setTitle("Jython GUI Example")
         self.dialog.setSize(400, 300)
         self.dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE)
-	self.dialog.setModal(True)
+        self.dialog.setModal(True)
 
         self.text_area = JTextArea(10, 30)
         self.text_area.setLineWrap(True)
@@ -55,7 +55,6 @@ class EncryptGUI:
             print("Updated request sent:")
             print(self.helpers.bytesToString(self.updatedRequest))
             self.encryptButtonPressed = True
-	    self.dialog.dispose()
+            self.dialog.dispose()
         else:
             print("No updated request available to send.")
-

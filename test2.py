@@ -8,18 +8,18 @@ class BurpExtender(IBurpExtender, IHttpListener):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
-
+        
         aes_cipher = AESECB(192)
         plaintext = "Hello world"
         print("Plaintext:", plaintext)
-
+        
         # Encrypt
         ciphertext = aes_cipher.encrypt(plaintext)
-	print("Ciphertext: {}".format(str(ciphertext)))
-
+        print("Ciphertext: {}".format(str(ciphertext)))
+        
         # Decrypt
         decrypted_text = aes_cipher.decrypt(ciphertext)
-	print("Decrypted: {}".format(str(decrypted_text)))
+        print("Decrypted: {}".format(str(decrypted_text)))
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if messageIsRequest:
@@ -32,7 +32,6 @@ class BurpExtender(IBurpExtender, IHttpListener):
         else:
             response = message.getResponse()
             if response is not None:
-
                 print("Response received:")
                 print(self.helpers.bytesToString(response).encode('ascii', 'ignore').decode('ascii'))
 
