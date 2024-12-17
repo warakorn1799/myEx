@@ -20,6 +20,7 @@ class RequestViewerGUI:
         self.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
         self.frame.setResizable(False)
 
+        # Top panel
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -37,6 +38,7 @@ class RequestViewerGUI:
         panel_top.add(scroll_pane1, BorderLayout.CENTER)
         panel_top.setPreferredSize(Dimension(1500, 260))
 
+        # Middle panel
         panel_middle = JPanel()
         panel_middle.setLayout(BorderLayout())
         panel_middle.setBorder(EmptyBorder(10, 10, 10, 10)) 
@@ -47,15 +49,10 @@ class RequestViewerGUI:
         panel_middle.add(scroll_pane2, BorderLayout.CENTER)
         panel_middle.setPreferredSize(Dimension(1500, 260))
 
-        panel_bottom = JPanel()
-        panel_bottom.setLayout(BorderLayout())
-        panel_bottom.setBackground(Color.GRAY)
-        panel_bottom.setBorder(EmptyBorder(10, 10, 10, 10))
-        panel_bottom.setPreferredSize(Dimension(1000, 80))
-
-        self.panel_bottom_left = JPanel()
-        self.panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
-        self.panel_bottom_left.setBackground(Color.GRAY)
+        # Bottom panel (Original)
+        panel_bottom_left = JPanel()
+        panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
+        panel_bottom_left.setBackground(Color.GRAY)
 
         font = Font("Arial", Font.PLAIN, 14)
 
@@ -74,10 +71,10 @@ class RequestViewerGUI:
         dropdown.setFont(font)
         dropdown.addActionListener(lambda e: self.onSelection(e))
 
-        self.panel_bottom_left.add(label_input)
-        self.panel_bottom_left.add(text_field)
-        self.panel_bottom_left.add(label_dropdown)
-        self.panel_bottom_left.add(dropdown)
+        panel_bottom_left.add(label_input)
+        panel_bottom_left.add(text_field)
+        panel_bottom_left.add(label_dropdown)
+        panel_bottom_left.add(dropdown)
 
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
@@ -92,16 +89,38 @@ class RequestViewerGUI:
         panel_bottom_right.add(button1)
         panel_bottom_right.add(button2)
 
-        panel_bottom.add(self.panel_bottom_left, BorderLayout.WEST)
+        panel_bottom = JPanel()
+        panel_bottom.setLayout(BorderLayout())
+        panel_bottom.setBackground(Color.GRAY)
+        panel_bottom.setBorder(EmptyBorder(10, 10, 10, 10))
+        panel_bottom.setPreferredSize(Dimension(1000, 80))
+
+        panel_bottom.add(panel_bottom_left, BorderLayout.WEST)
         panel_bottom.add(panel_bottom_right, BorderLayout.EAST)
+
+        panel_bottom_label = JPanel()
+        panel_bottom_label.setLayout(FlowLayout(FlowLayout.LEFT, 18, 0))
+        panel_bottom_label.setBackground(None)
+
+        label_me = JLabel("IV")
+        label_me.setFont(font)
+        label_me.setForeground(Color.WHITE)
+
+        self.text_field2 = JTextField(30)
+        self.text_field2.setFont(font)
+	self.text_field2.setEnabled(False)
+        self.text_field2.setBackground(Color.LIGHT_GRAY)
+
+        panel_bottom_label.add(label_me)
+	panel_bottom_label.add(self.text_field2)
+
+        panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
         self.frame.add(panel_top, BorderLayout.NORTH)
         self.frame.add(panel_middle, BorderLayout.CENTER)
         self.frame.add(panel_bottom, BorderLayout.SOUTH)
 
         self.frame.setVisible(True)
-	
-        self.font = Font("Arial", Font.PLAIN, 14)
 
     def onSelection(self, event):
         dropdown = event.getSource()
@@ -109,22 +128,11 @@ class RequestViewerGUI:
         print("Algorithm selected:", selectedItem)
 
         if selectedItem == "AES(CBC)":
-            labelIV = JLabel("IV")
-            labelIV.setFont(self.font)
-            labelIV.setForeground(Color.WHITE)
-
-            text_field2 = JTextField(30)
-            text_field2.setFont(self.font)
-
-            self.panel_bottom_left.add(labelIV)
-            self.panel_bottom_left.add(text_field2)
+            self.text_field2.setEnabled(True)
+	    self.text_field2.setBackground(Color.WHITE)
         else:
-            if labelIV and text_field2:
-                self.panel_bottom_left.remove(labelIV)
-                self.panel_bottom_left.remove(text_field2)
-
-            self.panel_bottom_left.revalidate()
-            self.panel_bottom_left.repaint()
+            self.text_field2.setEnabled(False)
+	    self.text_field2.setBackground(Color.LIGHT_GRAY)
 
     def isEncryptButtonPressed(self):
         while True:
