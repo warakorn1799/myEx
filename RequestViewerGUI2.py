@@ -20,7 +20,6 @@ class RequestViewerGUI:
         self.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
         self.frame.setResizable(False)
 
-        # Top panel
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -38,7 +37,6 @@ class RequestViewerGUI:
         panel_top.add(scroll_pane1, BorderLayout.CENTER)
         panel_top.setPreferredSize(Dimension(1500, 260))
 
-        # Middle panel
         panel_middle = JPanel()
         panel_middle.setLayout(BorderLayout())
         panel_middle.setBorder(EmptyBorder(10, 10, 10, 10)) 
@@ -49,7 +47,6 @@ class RequestViewerGUI:
         panel_middle.add(scroll_pane2, BorderLayout.CENTER)
         panel_middle.setPreferredSize(Dimension(1500, 260))
 
-        # Bottom panel (Original)
         panel_bottom_left = JPanel()
         panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
         panel_bottom_left.setBackground(Color.GRAY)
@@ -67,7 +64,7 @@ class RequestViewerGUI:
         label_dropdown.setFont(font)
         label_dropdown.setForeground(Color.WHITE)
 
-        dropdown = JComboBox(["RSA", "AES(CBC)", "AES(CFB)", "AES(GCM)"])
+        dropdown = JComboBox(["RSA", "AES(CBC)", "AES(ECB)", "AES(GCM)"])
         dropdown.setFont(font)
         dropdown.addActionListener(lambda e: self.onSelection(e))
 
