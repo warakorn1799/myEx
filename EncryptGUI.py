@@ -7,7 +7,6 @@ class EncryptGUI:
         self.message = message
         self.updatedRequest = updatedRequest
         self.encryptButtonPressed = False
-        print('updatedRequest', updatedRequest)
 
         self.dialog = JDialog()
         self.dialog.setTitle("Jython GUI Example")
