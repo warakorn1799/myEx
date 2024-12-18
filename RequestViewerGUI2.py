@@ -3,6 +3,7 @@ from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
 import time
 from EncryptGUI import EncryptGUI
+from EncryptDecrypt import AESECB, AESCBC, AESGCM
 
 class RequestViewerGUI:
     def __init__(self, helpers):
@@ -179,6 +180,20 @@ class RequestViewerGUI:
                 print("1")
                 button.setText("Decrypt on")
                 button.setSelected(True)
+
+        	selectedItem = dropdown.getSelectedItem()
+		if selectedItem == "AES(CBC)":
+		    key = "zM56kZa2aF43jHIaOLEiNGDp0Yj1V1QD"
+                    iv = "mZ3B9oXMbNDf7mmMZOHckw=="
+                    plaintext = "Hello World"
+
+                    aes = AESCBC()
+
+                    ciphertext = aes.encrypt(plaintext, key, iv)
+                    print("Encrypted:", ciphertext)
+
+                    decrypted_text = aes.decrypt(ciphertext, key, iv)
+                    print("Decrypted:", decrypted_text) 
             else:
                 print("0")
                 button.setText("Decrypt off")
