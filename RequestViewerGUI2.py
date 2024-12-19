@@ -5,18 +5,19 @@ import time
 from EncryptGUI import EncryptGUI
 from EncryptDecrypt import AESECB, AESCBC, AESGCM
 
+
 class RequestViewerGUI:
     def __init__(self, helpers):
         self.helpers = helpers
         self.initialize_gui()
         self.updatedRequest = None
-	self.updatedResponse = None
+        self.updatedResponse = None
         self.message = None
-	self.response = None
-	self.sendButtonPressed = False
+        self.response = None
+        self.sendButtonPressed = False
         self.encryptButtonPressed = False
         self.header = None
-	self.decryptOn = False
+        self.decryptOn = False
         self.gui = EncryptGUI('', '', '', '', '')
 
     def initialize_gui(self):
@@ -25,6 +26,7 @@ class RequestViewerGUI:
         self.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
         self.frame.setResizable(True)
 
+        # Top panel
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -42,9 +44,11 @@ class RequestViewerGUI:
         panel_top.add(scroll_pane1, BorderLayout.CENTER)
         panel_top.setPreferredSize(Dimension(1500, 260))
 
+        # Middle panel
         panel_middle = JPanel()
         panel_middle.setLayout(BorderLayout())
         panel_middle.setBorder(EmptyBorder(10, 10, 10, 10))
+
         self.text_area2 = JTextArea()
         self.text_area2.setEditable(True)
         self.text_area2.setText("--None--")
@@ -52,6 +56,7 @@ class RequestViewerGUI:
         panel_middle.add(scroll_pane2, BorderLayout.CENTER)
         panel_middle.setPreferredSize(Dimension(1500, 260))
 
+        # Bottom left panel
         panel_bottom_left = JPanel()
         panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
         panel_bottom_left.setBackground(Color.GRAY)
@@ -78,19 +83,21 @@ class RequestViewerGUI:
         panel_bottom_left.add(label_dropdown)
         panel_bottom_left.add(dropdown)
 
+        # Bottom right panel
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
         panel_bottom_right.setBackground(Color.GRAY)
 
-        button2 = JButton("Encrypt/Send")
-        button1 = JToggleButton("Decrypt off")
+        button_encrypt = JButton("Encrypt/Send")
+        button_decrypt = JToggleButton("Decrypt off")
 
-        button2.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
-        button1.addActionListener(lambda e: self.decrypt_action(button1, text_field, dropdown))
+        button_encrypt.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
+        button_decrypt.addActionListener(lambda e: self.decrypt_action(button_decrypt, text_field, dropdown))
 
-        panel_bottom_right.add(button1)
-        panel_bottom_right.add(button2)
+        panel_bottom_right.add(button_decrypt)
+        panel_bottom_right.add(button_encrypt)
 
+        # Bottom panel
         panel_bottom = JPanel()
         panel_bottom.setLayout(BorderLayout())
         panel_bottom.setBackground(Color.GRAY)
@@ -100,28 +107,29 @@ class RequestViewerGUI:
         panel_bottom.add(panel_bottom_left, BorderLayout.WEST)
         panel_bottom.add(panel_bottom_right, BorderLayout.EAST)
 
+        # Bottom label panel
         panel_bottom_label = JPanel()
         panel_bottom_label.setLayout(FlowLayout(FlowLayout.LEFT, 18, 0))
         panel_bottom_label.setBackground(None)
 
-        label_me = JLabel("IV")
-        label_me.setFont(font)
-        label_me.setForeground(Color.WHITE)
+        label_iv = JLabel("IV")
+        label_iv.setFont(font)
+        label_iv.setForeground(Color.WHITE)
 
         self.text_field2 = JTextField(30)
         self.text_field2.setFont(font)
         self.text_field2.setEnabled(False)
         self.text_field2.setBackground(Color.LIGHT_GRAY)
 
-        panel_bottom_label.add(label_me)
+        panel_bottom_label.add(label_iv)
         panel_bottom_label.add(self.text_field2)
 
         panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
+        # Adding panels to the frame
         self.frame.add(panel_top, BorderLayout.NORTH)
         self.frame.add(panel_middle, BorderLayout.CENTER)
         self.frame.add(panel_bottom, BorderLayout.SOUTH)
-
         self.frame.setVisible(True)
 
     def onSelection(self, event):
@@ -153,23 +161,23 @@ class RequestViewerGUI:
 
     def encrypt_action(self, text_field, dropdown):
         if self.updatedRequest and self.message:
-	    text = self.text_area2.getText()
-	    if "\n\n" in text:
+            text = self.text_area2.getText()
+            if "\n\n" in text:
                 header, body = text.split("\n\n", 1)
-	    else:
-    		header = text
-    		body = ""
-	    print("Header:")
-	    print(header)
+            else:
+                header = text
+                body = ""
+            print("Header:")
+            print(header)
 
-	    print("\nBody:")
-	    print(body)
+            print("\nBody:")
+            print(body)
 
             self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
             self.gui.start()
-	    self.updatedRequest= None
-	    self.message = None
-	elif self.updatedResponse and self.response:
+            self.updatedRequest = None
+            self.message = None
+        elif self.updatedResponse and self.response:
             self.encryptButtonPressed = True
         else:
             from javax.swing import JOptionPane
@@ -182,29 +190,26 @@ class RequestViewerGUI:
 
     def decrypt_action(self, button, text_field, dropdown):
         if text_field.getText() == "":
-            #print("0")
             if button.isSelected():
                 button.setSelected(False)
                 button.setText("Decrypt off")
-		self.decryptOn = False
+                self.decryptOn = False
         else:
             if button.isSelected():
-                print("1")
                 button.setText("Decrypt on")
                 button.setSelected(True)
-		self.decryptOn = True
-    	    else:
-                #print("0")
+                self.decryptOn = True
+            else:
                 button.setText("Decrypt off")
                 button.setSelected(False)
-		self.decryptOn = False
+                self.decryptOn = False
 
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
-	request_data = (self.helpers.bytesToString(request_data).encode('ascii', 'ignore').decode('ascii'))
+        request_data = self.helpers.bytesToString(request_data).encode('ascii', 'ignore').decode('ascii')
         self.text_area1.setText(request_data)
 
-	self.top_label.setText("Your Request")
+        self.top_label.setText("Your Request")
 
         self.header = header
         self.body = body
@@ -212,15 +217,15 @@ class RequestViewerGUI:
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
 
-	if self.decryptOn:
+        if self.decryptOn:
             self.text_area2.setText(request_data)
 
     def setResponseData(self, header, body, response):
-	response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')
-	response_data = (self.helpers.bytesToString(response_data).encode('ascii', 'ignore').decode('ascii'))
+        response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')
+        response_data = self.helpers.bytesToString(response_data).encode('ascii', 'ignore').decode('ascii')
         self.text_area1.setText(response_data)
 
-	self.top_label.setText("Your Response")
+        self.top_label.setText("Your Response")
 
         self.header = header
         self.body = body
@@ -228,5 +233,5 @@ class RequestViewerGUI:
         self.updatedResponse = self.helpers.buildHttpMessage(header, body)
         self.response = response
 
-	if self.decryptOn:
+        if self.decryptOn:
             self.text_area2.setText(response_data)
