@@ -16,6 +16,7 @@ class RequestViewerGUI:
 	self.sendButtonPressed = False
         self.encryptButtonPressed = False
         self.header = None
+	self.decryptOn = False
         self.gui = EncryptGUI('', '', '', '', '')
 
     def initialize_gui(self):
@@ -126,8 +127,6 @@ class RequestViewerGUI:
     def onSelection(self, event):
         dropdown = event.getSource()
         selectedItem = dropdown.getSelectedItem()
-        print("Algorithm selected:", selectedItem)
-
         if selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)":
             self.text_field2.setEnabled(True)
             self.text_field2.setBackground(Color.WHITE)
@@ -154,7 +153,19 @@ class RequestViewerGUI:
 
     def encrypt_action(self, text_field, dropdown):
         if self.updatedRequest and self.message:
-            self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
+	    text = self.text_area2.getText()
+	    if "\n\n" in text:
+                header, body = text.split("\n\n", 1)
+	    else:
+    		header = text
+    		body = ""
+	    print("Header:")
+	    print(header)
+
+	    print("\nBody:")
+	    print(body)
+
+            self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
             self.gui.start()
 	    self.updatedRequest= None
 	    self.message = None
@@ -171,33 +182,22 @@ class RequestViewerGUI:
 
     def decrypt_action(self, button, text_field, dropdown):
         if text_field.getText() == "":
-            print("0")
+            #print("0")
             if button.isSelected():
                 button.setSelected(False)
                 button.setText("Decrypt off")
+		self.decryptOn = False
         else:
             if button.isSelected():
                 print("1")
                 button.setText("Decrypt on")
                 button.setSelected(True)
-
-        	selectedItem = dropdown.getSelectedItem()
-		if selectedItem == "AES(CBC)":
-		    key = "zM56kZa2aF43jHIaOLEiNGDp0Yj1V1QD"
-                    iv = "mZ3B9oXMbNDf7mmMZOHckw=="
-                    plaintext = "Hello World"
-
-                    aes = AESCBC()
-
-                    ciphertext = aes.encrypt(plaintext, key, iv)
-                    print("Encrypted:", ciphertext)
-
-                    decrypted_text = aes.decrypt(ciphertext, key, iv)
-                    print("Decrypted:", decrypted_text) 
-            else:
-                print("0")
+		self.decryptOn = True
+    	    else:
+                #print("0")
                 button.setText("Decrypt off")
                 button.setSelected(False)
+		self.decryptOn = False
 
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
@@ -208,10 +208,12 @@ class RequestViewerGUI:
 
         self.header = header
         self.body = body
-        header.add("Origin: www.example.com")
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
+
+	if self.decryptOn:
+            self.text_area2.setText(request_data)
 
     def setResponseData(self, header, body, response):
 	response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')
@@ -225,3 +227,6 @@ class RequestViewerGUI:
 
         self.updatedResponse = self.helpers.buildHttpMessage(header, body)
         self.response = response
+
+	if self.decryptOn:
+            self.text_area2.setText(response_data)

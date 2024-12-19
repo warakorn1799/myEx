@@ -51,8 +51,6 @@ class EncryptGUI:
     def button2_action(self, event):
         if self.updatedRequest and self.message:
             self.message.setRequest(self.updatedRequest)
-            print("Updated request sent:")
-            print(self.helpers.bytesToString(self.updatedRequest))
             self.encryptButtonPressed = True
             self.dialog.dispose()
         else:

@@ -1,59 +1,82 @@
 from javax.crypto import Cipher, KeyGenerator
 from javax.crypto.spec import SecretKeySpec, IvParameterSpec, GCMParameterSpec
 from java.util import Base64
+import base64
 
 class AESECB:
-    def encrypt(self, plaintext):
-        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, self.secret_key)
+    def encrypt(self, plaintext, base64_key):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        secret_key = SecretKeySpec(key, "AES")
+	cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secret_key)
         encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
-        print("Ciphertext (HEX):", ''.join('%02x' % byte for byte in encrypted_bytes))
-	print("Ciphertext (BASE64):",Base64.getEncoder().encodeToString(encrypted_bytes))
-        return Base64.getEncoder().encodeToString(encrypted_bytes)
+	return Base64.getEncoder().encodeToString(encrypted_bytes)
 
-    def decrypt(self, ciphertext):
-        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.DECRYPT_MODE, self.secret_key)
+    def decrypt(self, ciphertext, base64_key):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        secret_key = SecretKeySpec(key, "AES")
+	cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secret_key)
         decoded_bytes = Base64.getDecoder().decode(ciphertext)
         decrypted_bytes = cipher.doFinal(decoded_bytes)
         return bytearray(decrypted_bytes).decode("utf-8")
 
 class AESCBC:
-    def encrypt(self, plaintext, key, iv):
-	key_size = len(key) * 8
-        if key_size not in [128, 192, 256]:
-            raise ValueError("Invalid key size. Supported sizes: 128, 192, 256.")
+    def encrypt(self, plaintext, base64_key, iv):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        if len(iv.encode('utf-8')) != 16:
+            raise ValueError("Invalid IV size. IV must be 16 bytes.")
+        secret_key = SecretKeySpec(key, "AES")
+        iv_spec = IvParameterSpec(iv.encode("utf-8"))
         cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(iv))
+        cipher.init(Cipher.ENCRYPT_MODE, secret_key, iv_spec)
         encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
-        print("Ciphertext (HEX):", ''.join('{:02x}'.format(byte) for byte in encrypted_bytes))
-	print("Ciphertext (BASE64):",Base64.getEncoder().encodeToString(encrypted_bytes))
-        return Base64.getEncoder().encodeToString(encrypted_bytes)
+        return base64.b64encode(encrypted_bytes).decode("utf-8")
 
-    def decrypt(self, ciphertext, key, iv):
-	key_size = len(key) * 8
-        if key_size not in [128, 192, 256]:
-            raise ValueError("Invalid key size. Supported sizes: 128, 192, 256.")
+    def decrypt(self, ciphertext, base64_key, iv):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        if len(iv.encode('utf-8')) != 16:
+            raise ValueError("Invalid IV size. IV must be 16 bytes.")
+        decoded_bytes = base64.b64decode(ciphertext)
+        secret_key = SecretKeySpec(key, "AES")
+        iv_spec = IvParameterSpec(iv.encode("utf-8"))
         cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        cipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(iv))
-        decoded_bytes = Base64.getDecoder().decode(ciphertext)
+        cipher.init(Cipher.DECRYPT_MODE, secret_key, iv_spec)
         decrypted_bytes = cipher.doFinal(decoded_bytes)
         return bytearray(decrypted_bytes).decode("utf-8")
 
 class AESGCM:
-    def encrypt(self, plaintext):
-        cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        iv = bytearray([0] * 12)
-        cipher.init(Cipher.ENCRYPT_MODE, self.secret_key, GCMParameterSpec(128, iv))
+    def encrypt(self, plaintext, base64_key, iv):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        if len(iv.encode('utf-8')) != 16:
+            raise ValueError("Invalid IV size. IV must be 16 bytes.")
+        secret_key = SecretKeySpec(key, "AES")
+        iv_spec = IvParameterSpec(iv.encode("utf-8"))
+	cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, secret_key, iv_spec)
         encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
-        print("Ciphertext (HEX):", ''.join('%02x' % byte for byte in encrypted_bytes))
-        print("Ciphertext (BASE64):",Base64.getEncoder().encodeToString(encrypted_bytes))
-	return Base64.getEncoder().encodeToString(encrypted_bytes)
+        return base64.b64encode(encrypted_bytes).decode("utf-8")
 
-    def decrypt(self, ciphertext):
-        cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        iv = bytearray([0] * 12)
-        cipher.init(Cipher.DECRYPT_MODE, self.secret_key, GCMParameterSpec(128, iv))
-        decoded_bytes = Base64.getDecoder().decode(ciphertext)
+    def decrypt(self, ciphertext, base64_key, iv):
+        key = base64.b64decode(base64_key)
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
+        if len(iv.encode('utf-8')) != 16:
+            raise ValueError("Invalid IV size. IV must be 16 bytes.")
+        decoded_bytes = base64.b64decode(ciphertext)
+        secret_key = SecretKeySpec(key, "AES")
+        iv_spec = IvParameterSpec(iv.encode("utf-8"))
+	cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, secret_key, iv_spec)
         decrypted_bytes = cipher.doFinal(decoded_bytes)
         return bytearray(decrypted_bytes).decode("utf-8")
