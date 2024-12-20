@@ -16,7 +16,8 @@ class EncryptGUI:
 
         self.text_area = JTextArea(10, 30)
         self.text_area.setLineWrap(True)
-        request_data = "\n".join(header) + "\n\n" + body
+        self.text_area.setEditable(False)
+        request_data = header + "\n\n" + body
         self.text_area.setText(request_data)
         scroll_pane = JScrollPane(self.text_area)
 

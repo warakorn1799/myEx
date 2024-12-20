@@ -1,6 +1,7 @@
-from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextField, JComboBox, JButton, JToggleButton
+from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextField, JComboBox, JButton, JToggleButton, JOptionPane
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
+from java.util import ArrayList
 import time
 from EncryptGUI import EncryptGUI
 from EncryptDecrypt import AESECB, AESCBC, AESGCM
@@ -167,12 +168,14 @@ class RequestViewerGUI:
             else:
                 header = text
                 body = ""
-            print("Header:")
-            print(header)
 
-            print("\nBody:")
-            print(body)
+            header_array_list = ArrayList()
+            for line in header.split("\n"):
+                header_array_list.add(line)
 
+            body_str = str(body)
+
+            self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, body_str)
             self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
             self.gui.start()
             self.updatedRequest = None
@@ -180,7 +183,6 @@ class RequestViewerGUI:
         elif self.updatedResponse and self.response:
             self.encryptButtonPressed = True
         else:
-            from javax.swing import JOptionPane
             JOptionPane.showMessageDialog(
                 None,
                 "No Request data found. Please ensure a request is selected or available.",
