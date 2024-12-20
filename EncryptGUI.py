@@ -17,7 +17,13 @@ class EncryptGUI:
         self.text_area = JTextArea(10, 30)
         self.text_area.setLineWrap(True)
         self.text_area.setEditable(False)
-        request_data = header + "\n\n" + body
+
+        #request_data = header + "\n\n" + body
+        try:
+            request_data = header + "\n\n" + body
+        except TypeError as e:
+            request_data = "\n".join(header) + "\n\n" + body
+
         self.text_area.setText(request_data)
         scroll_pane = JScrollPane(self.text_area)
 
@@ -48,6 +54,7 @@ class EncryptGUI:
 
     def button1_action(self, event):
         self.dialog.dispose()
+        self.resetSendButtonPressed()
 
     def button2_action(self, event):
         if self.updatedRequest and self.message:

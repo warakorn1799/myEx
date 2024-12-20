@@ -27,7 +27,6 @@ class RequestViewerGUI:
         self.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
         self.frame.setResizable(True)
 
-        # Top panel
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
         panel_top.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -45,7 +44,6 @@ class RequestViewerGUI:
         panel_top.add(scroll_pane1, BorderLayout.CENTER)
         panel_top.setPreferredSize(Dimension(1500, 260))
 
-        # Middle panel
         panel_middle = JPanel()
         panel_middle.setLayout(BorderLayout())
         panel_middle.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -57,7 +55,6 @@ class RequestViewerGUI:
         panel_middle.add(scroll_pane2, BorderLayout.CENTER)
         panel_middle.setPreferredSize(Dimension(1500, 260))
 
-        # Bottom left panel
         panel_bottom_left = JPanel()
         panel_bottom_left.setLayout(FlowLayout(FlowLayout.LEFT, 10, 10))
         panel_bottom_left.setBackground(Color.GRAY)
@@ -84,7 +81,6 @@ class RequestViewerGUI:
         panel_bottom_left.add(label_dropdown)
         panel_bottom_left.add(dropdown)
 
-        # Bottom right panel
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
         panel_bottom_right.setBackground(Color.GRAY)
@@ -98,7 +94,6 @@ class RequestViewerGUI:
         panel_bottom_right.add(button_decrypt)
         panel_bottom_right.add(button_encrypt)
 
-        # Bottom panel
         panel_bottom = JPanel()
         panel_bottom.setLayout(BorderLayout())
         panel_bottom.setBackground(Color.GRAY)
@@ -108,7 +103,6 @@ class RequestViewerGUI:
         panel_bottom.add(panel_bottom_left, BorderLayout.WEST)
         panel_bottom.add(panel_bottom_right, BorderLayout.EAST)
 
-        # Bottom label panel
         panel_bottom_label = JPanel()
         panel_bottom_label.setLayout(FlowLayout(FlowLayout.LEFT, 18, 0))
         panel_bottom_label.setBackground(None)
@@ -127,7 +121,6 @@ class RequestViewerGUI:
 
         panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
-        # Adding panels to the frame
         self.frame.add(panel_top, BorderLayout.NORTH)
         self.frame.add(panel_middle, BorderLayout.CENTER)
         self.frame.add(panel_bottom, BorderLayout.SOUTH)
@@ -162,11 +155,11 @@ class RequestViewerGUI:
 
     def encrypt_action(self, text_field, dropdown):
         if self.updatedRequest and self.message:
-            text = self.text_area2.getText()
-            if "\n\n" in text:
-                header, body = text.split("\n\n", 1)
+            requestDecrypt = self.text_area2.getText()
+            if "\n\n" in requestDecrypt:
+                header, body = requestDecrypt.split("\n\n", 1)
             else:
-                header = text
+                header = requestDecrypt
                 body = ""
 
             header_array_list = ArrayList()
@@ -174,9 +167,13 @@ class RequestViewerGUI:
                 header_array_list.add(line)
 
             body_str = str(body)
+            if self.decryptOn == True:
+                self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, body_str)
+                self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
+            else:
+                self.updatedRequest = self.helpers.buildHttpMessage(self.header, self.body)
+                self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
 
-            self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, body_str)
-            self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
             self.gui.start()
             self.updatedRequest = None
             self.message = None
@@ -191,11 +188,26 @@ class RequestViewerGUI:
             )
 
     def decrypt_action(self, button, text_field, dropdown):
+        selectedItem = dropdown.getSelectedItem()
         if text_field.getText() == "":
             if button.isSelected():
                 button.setSelected(False)
                 button.setText("Decrypt off")
                 self.decryptOn = False
+        elif len(text_field.getText()) not in [16, 24, 32]:
+            JOptionPane.showMessageDialog(
+                None,
+                "Key must be 16 or 24 or 32 bytes",
+                "WARNING",
+                JOptionPane.WARNING_MESSAGE
+            )
+        elif len(self.text_field2.getText()) != 16 and (selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)"):
+            JOptionPane.showMessageDialog(
+                None,
+                "IV must be 16 bytes",
+                "WARNING",
+                JOptionPane.WARNING_MESSAGE
+            )
         else:
             if button.isSelected():
                 button.setText("Decrypt on")
