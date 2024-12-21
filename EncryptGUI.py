@@ -7,6 +7,7 @@ class EncryptGUI:
         self.message = message
         self.updatedRequest = updatedRequest
         self.encryptButtonPressed = False
+        self.close = False
 
         self.dialog = JDialog()
         self.dialog.setTitle("Jython GUI Example")
@@ -49,12 +50,15 @@ class EncryptGUI:
     def isSendButtonPressed(self):
         return self.encryptButtonPressed
 
+    def isCloseButtonPressed(self):
+        return self.close
+    
     def resetSendButton(self):
         self.encryptButtonPressed = False
 
     def button1_action(self, event):
+        self.close = True
         self.dialog.dispose()
-        self.resetSendButtonPressed()
 
     def button2_action(self, event):
         if self.updatedRequest and self.message:

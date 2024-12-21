@@ -175,10 +175,23 @@ class RequestViewerGUI:
                 self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
 
             self.gui.start()
-            self.updatedRequest = None
-            self.message = None
+            print('self.gui.isCloseButtonPressed()',self.gui.isCloseButtonPressed())
+            if self.gui.isCloseButtonPressed():
+                print(2)
+                pass
+            else:
+                print(3)
+                self.updatedRequest = None
+                self.message = None
+                self.text_area1.setText("--None--")
+                self.text_area2.setText("--None--")
         elif self.updatedResponse and self.response:
+            print(4)
             self.encryptButtonPressed = True
+            self.updatedResponse = None
+            self.response = None
+            self.text_area1.setText("--None--")
+            self.text_area2.setText("--None--") 
         else:
             JOptionPane.showMessageDialog(
                 None,
