@@ -1,0 +1,13 @@
+paintext = id=B6403348
+key = 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d
+iv = 1f2e3d4c5b6a7980a9b8c7d6e5f4a3b2
+
+CBC
+ciphertext = 4c359b640876cc14adc265d1e707c15b
+
+GCM
+ciphertext = c3a67ebbb3fe4d25b95da9
+Tag: 8af80e5ca31f7e68b1268b16cfdb8928
+
+CBC
+ciphertext = cf45a3c2fc6fd2d934dda965be5625c2

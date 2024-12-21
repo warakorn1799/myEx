@@ -175,18 +175,14 @@ class RequestViewerGUI:
                 self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
 
             self.gui.start()
-            print('self.gui.isCloseButtonPressed()',self.gui.isCloseButtonPressed())
             if self.gui.isCloseButtonPressed():
-                print(2)
                 pass
             else:
-                print(3)
                 self.updatedRequest = None
                 self.message = None
                 self.text_area1.setText("--None--")
                 self.text_area2.setText("--None--")
         elif self.updatedResponse and self.response:
-            print(4)
             self.encryptButtonPressed = True
             self.updatedResponse = None
             self.response = None
@@ -207,10 +203,17 @@ class RequestViewerGUI:
                 button.setSelected(False)
                 button.setText("Decrypt off")
                 self.decryptOn = False
-        elif len(text_field.getText()) not in [16, 24, 32]:
+        elif len(text_field.getText()) not in [16, 24, 32] and (selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)" or selectedItem == "AES(ECB)"):
             JOptionPane.showMessageDialog(
                 None,
                 "Key must be 16 or 24 or 32 bytes",
+                "WARNING",
+                JOptionPane.WARNING_MESSAGE
+            )
+        elif len(text_field.getText()) not in [64, 128, 256, 384, 512] and (selectedItem == "RSA"):
+            JOptionPane.showMessageDialog(
+                None,
+                "Key must be 64 or 128 or 256 or 384 or 512 bytes",
                 "WARNING",
                 JOptionPane.WARNING_MESSAGE
             )
