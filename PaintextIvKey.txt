@@ -1,13 +1,16 @@
 paintext = id=B6403348
 key = 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d
-iv = 1f2e3d4c5b6a7980a9b8c7d6e5f4a3b2
+iv = 691d4a88d24768e9
 
 CBC
-ciphertext = 4c359b640876cc14adc265d1e707c15b
+ciphertext = b2ec3d51749f75dae0f4f9d27050194c
+Base64 = suw9UXSfddrg9PnScFAZTA==
 
 GCM
-ciphertext = c3a67ebbb3fe4d25b95da9
-Tag: 8af80e5ca31f7e68b1268b16cfdb8928
+ciphertext = d4a4c89a7b2a5526de901c
+Tag: 79cd61d1c94ccfd521c9511f32356060
+Base64 = 1KTImnsqVSbekBx5zWHRyUzP1SHJUR8yNWBg
 
-CBC
+ECB
 ciphertext = cf45a3c2fc6fd2d934dda965be5625c2
+Base64 = z0Wjwvxv0tk03allvlYlwg==

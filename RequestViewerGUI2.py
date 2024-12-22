@@ -19,6 +19,9 @@ class RequestViewerGUI:
         self.encryptButtonPressed = False
         self.header = None
         self.decryptOn = False
+        self.algorithm = None
+        self.key = None
+        self.iv = None
         self.gui = EncryptGUI('', '', '', '', '')
 
     def initialize_gui(self):
@@ -129,6 +132,7 @@ class RequestViewerGUI:
     def onSelection(self, event):
         dropdown = event.getSource()
         selectedItem = dropdown.getSelectedItem()
+        self.algorithm = selectedItem
         if selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)":
             self.text_field2.setEnabled(True)
             self.text_field2.setBackground(Color.WHITE)
@@ -198,6 +202,8 @@ class RequestViewerGUI:
 
     def decrypt_action(self, button, text_field, dropdown):
         selectedItem = dropdown.getSelectedItem()
+        self.key = text_field.getText()
+        self.iv = self.text_field2.getText()
         if text_field.getText() == "":
             if button.isSelected():
                 button.setSelected(False)
@@ -248,7 +254,25 @@ class RequestViewerGUI:
         self.message = message
 
         if self.decryptOn:
-            self.text_area2.setText(request_data)
+            if self.algorithm == "AES(ECB)":
+                aes = AESECB()
+                decrypted_text = aes.decrypt(body, self.key)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            if self.algorithm == "AES(CBC)":
+                print(self.iv)
+                aes = AESCBC()
+                decrypted_text = aes.decrypt(body, self.key, self.iv)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            if self.algorithm == "AES(GCM)":
+                print(self.iv)
+                aes = AESGCM()
+                decrypted_text = aes.decrypt(body, self.key, self.iv)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')    
+
+            self.text_area2.setText(decrypted_data2)
 
     def setResponseData(self, header, body, response):
         response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')

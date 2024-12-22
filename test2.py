@@ -1,26 +1,12 @@
 from burp import IBurpExtender, IHttpListener, IBurpExtenderCallbacks
 from RequestViewerGUI2 import RequestViewerGUI
 import time
-# from EncryptDecrypt import AESECB, AESCBC, AESGCM
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
-
-        # Example AES encryption and decryption (commented out for now)
-        # aes_cipher = AESCBC(192)
-        # plaintext = "Hello world"
-        # print("Plaintext:", plaintext)
-
-        # Encrypt
-        # ciphertext = aes_cipher.encrypt(plaintext)
-        # print("Ciphertext: {}".format(str(ciphertext)))
-
-        # Decrypt
-        # decrypted_text = aes_cipher.decrypt(ciphertext)
-        # print("Decrypted: {}".format(str(decrypted_text)))
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if toolFlag == IBurpExtenderCallbacks.TOOL_PROXY or toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER:
