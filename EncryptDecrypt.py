@@ -75,7 +75,7 @@ class AESGCM:
             raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
         if len(iv.encode('utf-8')) != 16:
             raise ValueError("Invalid IV size. IV must be 16 bytes.")
-	decoded_bytes = base64.b64decode(ciphertext)
+        decoded_bytes = base64.b64decode(ciphertext)
         secret_key = SecretKeySpec(key, "AES")
         iv_spec = IvParameterSpec(iv.encode("utf-8"))
         cipher = Cipher.getInstance("AES/GCM/NoPadding")
