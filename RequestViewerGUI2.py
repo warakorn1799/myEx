@@ -28,7 +28,7 @@ class RequestViewerGUI:
         self.frame = JFrame("Request Details")
         self.frame.setExtendedState(JFrame.MAXIMIZED_BOTH)
 	self.frame.setSize(1400, 800)
-        self.frame.setResizable(False)
+	self.frame.setResizable(False)
 
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
@@ -71,13 +71,18 @@ class RequestViewerGUI:
 	text_field = JTextField(30)
         text_field.setFont(font)
 
-        #label_dropdown = JLabel("Select an Algorithm")
-        #label_dropdown.setFont(font)
-        #label_dropdown.setForeground(Color.WHITE)
+	label_pri = JLabel("Encrypt KEY")
+        label_pri.setFont(font)
+        label_pri.setForeground(Color.WHITE)
+        
+        pri_field = JTextField(30)
+        pri_field.setFont(font)
 
-        panel_bottom_left.add(label_input)
+	panel_bottom_left.add(label_input)
         panel_bottom_left.add(text_field)
-        #panel_bottom_left.add(label_dropdown)
+        panel_bottom_left.add(label_pri)
+        panel_bottom_left.add(pri_field)
+	
 
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
