@@ -26,9 +26,9 @@ class RequestViewerGUI:
 
     def initialize_gui(self):
         self.frame = JFrame("Request Details")
-        self.frame.setSize(1000, 600)
-        self.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
-        self.frame.setResizable(True)
+        self.frame.setExtendedState(JFrame.MAXIMIZED_BOTH)
+	self.frame.setSize(1400, 800)
+        self.frame.setResizable(False)
 
         panel_top = JPanel()
         panel_top.setLayout(BorderLayout())
@@ -67,22 +67,17 @@ class RequestViewerGUI:
         label_input = JLabel("KEY")
         label_input.setFont(font)
         label_input.setForeground(Color.WHITE)
-
-        text_field = JTextField(30)
+	
+	text_field = JTextField(30)
         text_field.setFont(font)
 
-        label_dropdown = JLabel("Select an Algorithm")
-        label_dropdown.setFont(font)
-        label_dropdown.setForeground(Color.WHITE)
-
-        dropdown = JComboBox(["RSA", "AES(ECB)", "AES(CBC)", "AES(GCM)"])
-        dropdown.setFont(font)
-        dropdown.addActionListener(lambda e: self.onSelection(e))
+        #label_dropdown = JLabel("Select an Algorithm")
+        #label_dropdown.setFont(font)
+        #label_dropdown.setForeground(Color.WHITE)
 
         panel_bottom_left.add(label_input)
         panel_bottom_left.add(text_field)
-        panel_bottom_left.add(label_dropdown)
-        panel_bottom_left.add(dropdown)
+        #panel_bottom_left.add(label_dropdown)
 
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
@@ -119,10 +114,29 @@ class RequestViewerGUI:
         self.text_field2.setEnabled(False)
         self.text_field2.setBackground(Color.LIGHT_GRAY)
 
+	label_encryption_scheme = JLabel("Padding Schemes")
+        label_encryption_scheme.setFont(font)
+        label_encryption_scheme.setForeground(Color.WHITE)
+	
+	label_dropdown = JLabel("Select an Algorithm")
+        label_dropdown.setFont(font)
+        label_dropdown.setForeground(Color.WHITE)
+
+	dropdown = JComboBox(["RSA", "AES(ECB)", "AES(CBC)", "AES(GCM)"])
+        dropdown.setFont(font)
+        dropdown.addActionListener(lambda e: self.onSelection(e))
+
+	dropdown_encryption_scheme = JComboBox(["RAW", "RAES-PKCS1-V1_5", "RSA-OAEP(SHA-256)", "RSA-OAEP(SHA-384)","RSA-OAEP(SHA-512)"])
+	dropdown_encryption_scheme.setFont(font)
+
         panel_bottom_label.add(label_iv)
         panel_bottom_label.add(self.text_field2)
-
-        panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
+	panel_bottom_label.add(label_dropdown)
+	panel_bottom_label.add(dropdown)
+	panel_bottom_label.add(label_encryption_scheme)
+        panel_bottom_label.add(dropdown_encryption_scheme)
+	
+	panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
         self.frame.add(panel_top, BorderLayout.NORTH)
         self.frame.add(panel_middle, BorderLayout.CENTER)
@@ -216,13 +230,6 @@ class RequestViewerGUI:
                 "WARNING",
                 JOptionPane.WARNING_MESSAGE
             )
-        elif len(text_field.getText()) not in [64, 128, 256, 384, 512] and (selectedItem == "RSA"):
-            JOptionPane.showMessageDialog(
-                None,
-                "Key must be 64 or 128 or 256 or 384 or 512 bytes",
-                "WARNING",
-                JOptionPane.WARNING_MESSAGE
-            )
         elif len(self.text_field2.getText()) != 16 and (selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)"):
             JOptionPane.showMessageDialog(
                 None,
@@ -270,7 +277,7 @@ class RequestViewerGUI:
                 aes = AESGCM()
                 decrypted_text = aes.decrypt(body, self.key, self.iv)
                 decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')    
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
 
             self.text_area2.setText(decrypted_data2)
 
