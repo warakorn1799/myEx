@@ -83,9 +83,6 @@ class AESGCM:
         decrypted_bytes = cipher.doFinal(decoded_bytes)
         return bytearray(decrypted_bytes).decode("utf-8")
 
-from java.security import KeyPairGenerator, KeyPair
-from java.security import PublicKey, PrivateKey
-
 class RSA:
     def load_public_key_from_base64(self, base64_key):
         key_bytes = Base64.getDecoder().decode(base64_key)
@@ -99,14 +96,66 @@ class RSA:
         key_factory = KeyFactory.getInstance("RSA")
         return key_factory.generatePrivate(key_spec)
 
-    def encrypt(self, public_key, plaintext):
+    def encryptRAW(self, public_key, plaintext):
         cipher = Cipher.getInstance("RSA/ECB/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, public_key)
         encrypted_bytes = cipher.doFinal(plaintext.encode('utf-8'))
         return Base64.getEncoder().encodeToString(encrypted_bytes)
 
-    def decrypt(self, private_key, ciphertext):
+    def decryptRAW(self, private_key, ciphertext):
         cipher = Cipher.getInstance("RSA/ECB/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, private_key)
+        encrypted_bytes = Base64.getDecoder().decode(ciphertext)
+        decrypted_bytes = cipher.doFinal(encrypted_bytes)
+        return bytearray(decrypted_bytes).decode("utf-8")
+
+    def encryptPKCS1(self, public_key, plaintext):
+        cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, public_key)
+        encrypted_bytes = cipher.doFinal(plaintext.encode('utf-8'))
+        return Base64.getEncoder().encodeToString(encrypted_bytes)
+
+    def decryptPKCS1(self, private_key, ciphertext):
+        cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        cipher.init(Cipher.DECRYPT_MODE, private_key)
+        encrypted_bytes = Base64.getDecoder().decode(ciphertext)
+        decrypted_bytes = cipher.doFinal(encrypted_bytes)
+        return bytearray(decrypted_bytes).decode("utf-8")
+
+    def encryptOAEP_SHA256(self, public_key, plaintext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, public_key)
+        encrypted_bytes = cipher.doFinal(plaintext.encode('utf-8'))
+        return Base64.getEncoder().encodeToString(encrypted_bytes)
+
+    def decryptOAEP_SHA256(self, private_key, ciphertext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
+        cipher.init(Cipher.DECRYPT_MODE, private_key)
+        encrypted_bytes = Base64.getDecoder().decode(ciphertext)
+        decrypted_bytes = cipher.doFinal(encrypted_bytes)
+        return bytearray(decrypted_bytes).decode("utf-8")
+    
+    def encryptOAEP_SHA384(self, public_key, plaintext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-384AndMGF1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, public_key)
+        encrypted_bytes = cipher.doFinal(plaintext.encode('utf-8'))
+        return Base64.getEncoder().encodeToString(encrypted_bytes)
+
+    def decryptOAEP_SHA384(self, private_key, ciphertext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-384AndMGF1Padding")
+        cipher.init(Cipher.DECRYPT_MODE, private_key)
+        encrypted_bytes = Base64.getDecoder().decode(ciphertext)
+        decrypted_bytes = cipher.doFinal(encrypted_bytes)
+        return bytearray(decrypted_bytes).decode("utf-8")
+    
+    def encryptOAEP_SHA512(self, public_key, plaintext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, public_key)
+        encrypted_bytes = cipher.doFinal(plaintext.encode('utf-8'))
+        return Base64.getEncoder().encodeToString(encrypted_bytes)
+
+    def decryptOAEP_SHA512(self, private_key, ciphertext):
+        cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-512AndMGF1Padding")
         cipher.init(Cipher.DECRYPT_MODE, private_key)
         encrypted_bytes = Base64.getDecoder().decode(ciphertext)
         decrypted_bytes = cipher.doFinal(encrypted_bytes)

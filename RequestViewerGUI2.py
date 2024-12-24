@@ -3,9 +3,9 @@ from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
 from java.util import ArrayList
 import time
+import re
 from EncryptGUI import EncryptGUI
-from EncryptDecrypt import AESECB, AESCBC, AESGCM
-
+from EncryptDecrypt import AESECB, AESCBC, AESGCM, RSA
 
 class RequestViewerGUI:
     def __init__(self, helpers):
@@ -19,9 +19,11 @@ class RequestViewerGUI:
         self.encryptButtonPressed = False
         self.header = None
         self.decryptOn = False
-        self.algorithm = None
+        self.algorithm = "RSA"
         self.key = None
+	self.privateKey = None
         self.iv = None
+	self.rsaPadding = "RAW"
         self.gui = EncryptGUI('', '', '', '', '')
 
     def initialize_gui(self):
@@ -75,14 +77,13 @@ class RequestViewerGUI:
         label_pri.setFont(font)
         label_pri.setForeground(Color.WHITE)
         
-        pri_field = JTextField(30)
-        pri_field.setFont(font)
+        self.pri_field = JTextField(30)
+        self.pri_field.setFont(font)
 
         panel_bottom_left.add(label_input)
         panel_bottom_left.add(text_field)
         panel_bottom_left.add(label_pri)
-        panel_bottom_left.add(pri_field)
-	
+        panel_bottom_left.add(self.pri_field)
 
         panel_bottom_right = JPanel()
         panel_bottom_right.setLayout(FlowLayout(FlowLayout.RIGHT, 10, 10))
@@ -131,15 +132,16 @@ class RequestViewerGUI:
         dropdown.setFont(font)
         dropdown.addActionListener(lambda e: self.onSelection(e))
 
-        dropdown_encryption_scheme = JComboBox(["RAW", "RAES-PKCS1-V1_5", "RSA-OAEP(SHA-256)", "RSA-OAEP(SHA-384)","RSA-OAEP(SHA-512)"])
-        dropdown_encryption_scheme.setFont(font)
+        self.dropdown_encryption_scheme = JComboBox(["RAW", "RAES-PKCS1-V1_5", "RSA-OAEP(SHA-256)", "RSA-OAEP(SHA-384)","RSA-OAEP(SHA-512)"])
+        self.dropdown_encryption_scheme.setFont(font)
+	self.dropdown_encryption_scheme.addActionListener(lambda e: self.onSelectionScheme(e))
 
         panel_bottom_label.add(label_iv)
         panel_bottom_label.add(self.text_field2)
         panel_bottom_label.add(label_dropdown)
         panel_bottom_label.add(dropdown)
         panel_bottom_label.add(label_encryption_scheme)
-        panel_bottom_label.add(dropdown_encryption_scheme)
+        panel_bottom_label.add(self.dropdown_encryption_scheme)
 	
         panel_bottom.add(panel_bottom_label, BorderLayout.SOUTH)
 
@@ -155,9 +157,27 @@ class RequestViewerGUI:
         if selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)":
             self.text_field2.setEnabled(True)
             self.text_field2.setBackground(Color.WHITE)
+	    self.dropdown_encryption_scheme.setEnabled(False)
+	    self.pri_field.setEnabled(False)
+	    self.pri_field.setBackground(Color.LIGHT_GRAY)
+	elif selectedItem == "RSA":
+	    self.text_field2.setEnabled(False)
+            self.text_field2.setBackground(Color.LIGHT_GRAY)
+	    self.dropdown_encryption_scheme.setEnabled(True)
+	    self.pri_field.setEnabled(True)
+            self.pri_field.setBackground(Color.WHITE)
         else:
             self.text_field2.setEnabled(False)
             self.text_field2.setBackground(Color.LIGHT_GRAY)
+	    self.dropdown_encryption_scheme.setEnabled(False)
+	    self.pri_field.setEnabled(False)
+            self.pri_field.setBackground(Color.LIGHT_GRAY)
+
+    def onSelectionScheme(self, event):
+        dropdown = event.getSource()
+        selectedItem = dropdown.getSelectedItem()
+	self.rsaPadding = selectedItem
+	print(self.rsaPadding)
 
     def isEncryptButtonPressed(self):
         while True:
@@ -222,6 +242,7 @@ class RequestViewerGUI:
     def decrypt_action(self, button, text_field, dropdown):
         selectedItem = dropdown.getSelectedItem()
         self.key = text_field.getText()
+	self.privateKey = self.pri_field.getText()
         self.iv = self.text_field2.getText()
         if text_field.getText() == "":
             if button.isSelected():
@@ -272,19 +293,57 @@ class RequestViewerGUI:
                 decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
                 decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
             if self.algorithm == "AES(CBC)":
-                print(self.iv)
                 aes = AESCBC()
                 decrypted_text = aes.decrypt(body, self.key, self.iv)
                 decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
                 decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
             if self.algorithm == "AES(GCM)":
-                print(self.iv)
                 aes = AESGCM()
                 decrypted_text = aes.decrypt(body, self.key, self.iv)
                 decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
                 decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-
-            self.text_area2.setText(decrypted_data2)
+	    if self.algorithm == "RSA":
+		if self.rsaPadding == "RAW":
+		    rsa = RSA()
+		    self.key = re.sub(r'\s+', '', self.key)
+		    private_key_base64 = self.key
+		    private_key = rsa.load_private_key_from_base64(private_key_base64)
+        	    decrypted_text = rsa.decryptRAW(private_key, body)
+		    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            	if self.rsaPadding == "RAES-PKCS1-V1_5":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptPKCS1(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+		if self.rsaPadding == "RSA-OAEP(SHA-256)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA256(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+		if self.rsaPadding == "RSA-OAEP(SHA-384)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA384(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+		if self.rsaPadding == "RSA-OAEP(SHA-512)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+		self.text_area2.setText(decrypted_data2)
 
     def setResponseData(self, header, body, response):
         response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')
@@ -300,4 +359,60 @@ class RequestViewerGUI:
         self.response = response
 
         if self.decryptOn:
-            self.text_area2.setText(response_data)
+            if self.algorithm == "AES(ECB)":
+                aes = AESECB()
+                decrypted_text = aes.decrypt(body, self.key)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            if self.algorithm == "AES(CBC)":
+                aes = AESCBC()
+                decrypted_text = aes.decrypt(body, self.key, self.iv)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            if self.algorithm == "AES(GCM)":
+                aes = AESGCM()
+                decrypted_text = aes.decrypt(body, self.key, self.iv)
+                decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+            if self.algorithm == "RSA":
+                if self.rsaPadding == "RAW":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptRAW(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                if self.rsaPadding == "RAES-PKCS1-V1_5":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptPKCS1(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                if self.rsaPadding == "RSA-OAEP(SHA-256)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA256(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                if self.rsaPadding == "RSA-OAEP(SHA-384)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA384(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+		if self.rsaPadding == "RSA-OAEP(SHA-512)":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+                    decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                self.text_area2.setText(decrypted_data2)
