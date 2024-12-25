@@ -21,7 +21,7 @@ class RequestViewerGUI:
         self.decryptOn = False
         self.algorithm = "RSA"
         self.key = None
-	self.privateKey = None
+	self.EncryptKey = None
         self.iv = None
 	self.rsaPadding = "RAW"
         self.gui = EncryptGUI('', '', '', '', '')
@@ -211,8 +211,49 @@ class RequestViewerGUI:
 
             body_str = str(body)
             if self.decryptOn == True:
-                self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, body_str)
-                self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, body)
+		if self.algorithm == "AES(ECB)":
+                    aes = AESECB()
+		    encrypted = aes.encrypt(body_str, self.key)
+	        if self.algorithm == "AES(CBC)":
+                    aes = AESCBC()
+                    encrypted = aes.encrypt(body_str, self.key, self.iv)
+		if self.algorithm == "AES(GCM)":
+                    aes = AESGCM()
+                    encrypted = aes.encrypt(body_str, self.key, self.iv)
+		if self.algorithm == "RSA":
+		    if self.rsaPadding == "RAW":
+			rsa = RSA()
+                        self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
+			public_key_base64 = self.EncryptKey
+                    	public_key = rsa.load_public_key_from_base64(public_key_base64)
+                    	encrypted = rsa.encryptRAW(public_key, body)
+		    if self.rsaPadding == "RAES-PKCS1-V1_5":
+                        rsa = RSA()
+                        self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
+                        public_key_base64 = self.EncryptKey
+                        public_key = rsa.load_public_key_from_base64(public_key_base64)
+                        encrypted = rsa.encryptPKCS1(public_key, body)
+		    if self.rsaPadding == "RSA-OAEP(SHA-256)":
+                        rsa = RSA()
+                        self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
+                        public_key_base64 = self.EncryptKey
+                        public_key = rsa.load_public_key_from_base64(public_key_base64)
+                        encrypted = rsa.encryptOAEP_SHA256(public_key, body)
+ 		    if self.rsaPadding == "RSA-OAEP(SHA-384)":
+                        rsa = RSA()
+                        self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
+                        public_key_base64 = self.EncryptKey
+                        public_key = rsa.load_public_key_from_base64(public_key_base64)
+                        encrypted = rsa.encryptOAEP_SHA384(public_key, body)
+		    if self.rsaPadding == "RSA-OAEP(SHA-512)":
+                        rsa = RSA()
+                        self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
+                        public_key_base64 = self.EncryptKey
+                        public_key = rsa.load_public_key_from_base64(public_key_base64)
+                        encrypted = rsa.encryptOAEP_SHA512(public_key, body)
+
+                self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, encrypted)
+                self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, encrypted)
             else:
                 self.updatedRequest = self.helpers.buildHttpMessage(self.header, self.body)
                 self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
@@ -230,7 +271,7 @@ class RequestViewerGUI:
             self.updatedResponse = None
             self.response = None
             self.text_area1.setText("--None--")
-            self.text_area2.setText("--None--") 
+            self.text_area2.setText("--None--")
         else:
             JOptionPane.showMessageDialog(
                 None,
@@ -242,7 +283,7 @@ class RequestViewerGUI:
     def decrypt_action(self, button, text_field, dropdown):
         selectedItem = dropdown.getSelectedItem()
         self.key = text_field.getText()
-	self.privateKey = self.pri_field.getText()
+	self.EncryptKey = self.pri_field.getText()
         self.iv = self.text_field2.getText()
         if text_field.getText() == "":
             if button.isSelected():
@@ -343,7 +384,7 @@ class RequestViewerGUI:
                     decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
                     decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
                     decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-		self.text_area2.setText(decrypted_data2)
+	    self.text_area2.setText(decrypted_data2)
 
     def setResponseData(self, header, body, response):
         response_data = "\n".join(header).encode('utf-8', 'ignore').decode('utf-8') + "\n\n" + body.encode('utf-8', 'ignore').decode('utf-8')
