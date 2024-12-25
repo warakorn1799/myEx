@@ -15,7 +15,7 @@ class AESECB:
         cipher.init(Cipher.ENCRYPT_MODE, secret_key)
         encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
         return Base64.getEncoder().encodeToString(encrypted_bytes)
-
+    
     def decrypt(self, ciphertext, base64_key):
         key = base64.b64decode(base64_key)
         if len(key) not in [16, 24, 32]:
