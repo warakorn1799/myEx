@@ -7,19 +7,15 @@ import base64
 
 class AESECB:
     def encrypt(self, plaintext, base64_key):
-        key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
-        secret_key = SecretKeySpec(key, "AES")
-        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, secret_key)
-        encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
+	key = base64.b64decode(base64_key)
+	secret_key = SecretKeySpec(key, "AES")
+	cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+	cipher.init(Cipher.ENCRYPT_MODE, secret_key)
+	encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
         return Base64.getEncoder().encodeToString(encrypted_bytes)
-    
+
     def decrypt(self, ciphertext, base64_key):
         key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
         secret_key = SecretKeySpec(key, "AES")
         cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, secret_key)
@@ -30,10 +26,6 @@ class AESECB:
 class AESCBC:
     def encrypt(self, plaintext, base64_key, iv):
         key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
-        if len(iv.encode('utf-8')) != 16:
-            raise ValueError("Invalid IV size. IV must be 16 bytes.")
         secret_key = SecretKeySpec(key, "AES")
         iv_spec = IvParameterSpec(iv.encode("utf-8"))
         cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
@@ -43,10 +35,6 @@ class AESCBC:
 
     def decrypt(self, ciphertext, base64_key, iv):
         key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
-        if len(iv.encode('utf-8')) != 16:
-            raise ValueError("Invalid IV size. IV must be 16 bytes.")
         decoded_bytes = base64.b64decode(ciphertext)
         secret_key = SecretKeySpec(key, "AES")
         iv_spec = IvParameterSpec(iv.encode("utf-8"))
@@ -58,10 +46,6 @@ class AESCBC:
 class AESGCM:
     def encrypt(self, plaintext, base64_key, iv):
         key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
-        if len(iv.encode('utf-8')) != 16:
-            raise ValueError("Invalid IV size. IV must be 16 bytes.")
         secret_key = SecretKeySpec(key, "AES")
         iv_spec = IvParameterSpec(iv.encode("utf-8"))
         cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -71,10 +55,6 @@ class AESGCM:
 
     def decrypt(self, ciphertext, base64_key, iv):
         key = base64.b64decode(base64_key)
-        if len(key) not in [16, 24, 32]:
-            raise ValueError("Invalid key size. Key must be 16, 24, or 32 bytes.")
-        if len(iv.encode('utf-8')) != 16:
-            raise ValueError("Invalid IV size. IV must be 16 bytes.")
         decoded_bytes = base64.b64decode(ciphertext)
         secret_key = SecretKeySpec(key, "AES")
         iv_spec = IvParameterSpec(iv.encode("utf-8"))
