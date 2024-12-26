@@ -1,33 +1,67 @@
 from burp import IBurpExtender, IHttpListener, IBurpExtenderCallbacks
 from RequestViewerGUI2 import RequestViewerGUI
 import time
+from Queue import Queue
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
+        self.message_queue = Queue()  # Queue to store messages
+        self.is_processing_request = False  # Track request processing status
+        self.is_processing_response = False  # Track response processing status
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if toolFlag == IBurpExtenderCallbacks.TOOL_PROXY or toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER:
             if messageIsRequest:
-                request = message.getRequest()
-                requestInfo = self.helpers.analyzeRequest(request)
-                headers = requestInfo.getHeaders()
-                body = request[requestInfo.getBodyOffset():].tostring()
-                self.gui.setRequestData(headers, body, message)
-                self.waitForEncryptButtonPress()
+                if not self.is_processing_request:  # Check if request processing is not ongoing
+                    self.is_processing_request = True
+                    self.message_queue.put(('request', message))
+                    self.processQueue()
+                else:
+                    print("Request discarded because processing is already ongoing")
             else:
-                response = message.getResponse()
-                if response is not None:
-                    responseInfo = self.helpers.analyzeResponse(response)
-                    responseHeaders = responseInfo.getHeaders()
-                    responseBodyOffset = responseInfo.getBodyOffset()
-                    responseBody = response[responseBodyOffset:].tostring()
-                    self.gui.setResponseData(responseHeaders, responseBody, response)
-                    self.waitForSendButtonPress()
+                if not self.is_processing_response:  # Check if response processing is not ongoing
+                    self.is_processing_response = True
+                    self.message_queue.put(('response', message))
+                    self.processQueue()
+                else:
+                    print("Response discarded because processing is already ongoing")
         else:
-            print("Pass because it is not from Proxy or Repeater.")
+            print("Skipped because it's not from Proxy or Repeater")
+
+    def processQueue(self):
+        while not self.message_queue.empty():
+            message_type, message = self.message_queue.get()
+            self.handleMessage(message_type, message)
+        # Reset status after processing
+        self.is_processing_request = False
+        self.is_processing_response = False
+
+    def handleMessage(self, message_type, message):
+        if message_type == 'request':
+            self.handleRequest(message)
+        elif message_type == 'response':
+            self.handleResponse(message)
+
+    def handleRequest(self, message):
+        request = message.getRequest()
+        requestInfo = self.helpers.analyzeRequest(request)
+        headers = requestInfo.getHeaders()
+        body = request[requestInfo.getBodyOffset():].tostring()
+        self.gui.setRequestData(headers, body, message)
+        self.waitForEncryptButtonPress()
+
+    def handleResponse(self, message):
+        response = message.getResponse()
+        if response is not None:
+            responseInfo = self.helpers.analyzeResponse(response)
+            responseHeaders = responseInfo.getHeaders()
+            responseBodyOffset = responseInfo.getBodyOffset()
+            responseBody = response[responseBodyOffset:].tostring()
+            self.gui.setResponseData(responseHeaders, responseBody, message)
+            self.waitForSendButtonPress()
 
     def waitForEncryptButtonPress(self):
         while True:
