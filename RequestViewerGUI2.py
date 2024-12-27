@@ -73,8 +73,8 @@ class RequestViewerGUI:
         label_input.setFont(font)
         label_input.setForeground(Color.WHITE)
 	
-        text_field = JTextField(30)
-        text_field.setFont(font)
+        self.keyField = JTextField(30)
+        self.keyField.setFont(font)
 
         label_pri = JLabel("Encrypt KEY")
         label_pri.setFont(font)
@@ -84,7 +84,7 @@ class RequestViewerGUI:
         self.pri_field.setFont(font)
 
         panel_bottom_left.add(label_input)
-        panel_bottom_left.add(text_field)
+        panel_bottom_left.add(self.keyField)
         panel_bottom_left.add(label_pri)
         panel_bottom_left.add(self.pri_field)
 
@@ -95,8 +95,8 @@ class RequestViewerGUI:
         button_encrypt = JButton("Encrypt/Send")
         button_decrypt = JToggleButton("Decrypt off")
 
-        button_encrypt.addActionListener(lambda e: self.encrypt_action(text_field, dropdown))
-        button_decrypt.addActionListener(lambda e: self.decrypt_action(button_decrypt, text_field, dropdown))
+        button_encrypt.addActionListener(lambda e: self.encrypt_action(self.keyField, self.dropdown))
+        button_decrypt.addActionListener(lambda e: self.decrypt_action(button_decrypt, self.keyField, self.dropdown))
 
         panel_bottom_right.add(button_decrypt)
         panel_bottom_right.add(button_encrypt)
@@ -131,9 +131,9 @@ class RequestViewerGUI:
         label_dropdown.setFont(font)
         label_dropdown.setForeground(Color.WHITE)
 
-        dropdown = JComboBox(["RSA", "AES(ECB)", "AES(CBC)", "AES(GCM)"])
-        dropdown.setFont(font)
-        dropdown.addActionListener(lambda e: self.onSelection(e))
+        self.dropdown = JComboBox(["RSA", "AES(ECB)", "AES(CBC)", "AES(GCM)"])
+        self.dropdown.setFont(font)
+        self.dropdown.addActionListener(lambda e: self.onSelection(e))
 
         self.dropdown_encryption_scheme = JComboBox(["RAW", "RAES-PKCS1-V1_5", "RSA-OAEP(SHA-256)", "RSA-OAEP(SHA-384)","RSA-OAEP(SHA-512)"])
         self.dropdown_encryption_scheme.setFont(font)
@@ -142,7 +142,7 @@ class RequestViewerGUI:
         panel_bottom_label.add(label_iv)
         panel_bottom_label.add(self.text_field2)
         panel_bottom_label.add(label_dropdown)
-        panel_bottom_label.add(dropdown)
+        panel_bottom_label.add(self.dropdown)
         panel_bottom_label.add(label_encryption_scheme)
         panel_bottom_label.add(self.dropdown_encryption_scheme)
 	
@@ -154,33 +154,41 @@ class RequestViewerGUI:
         self.frame.setVisible(True)
 
     def onSelection(self, event):
-        dropdown = event.getSource()
-        selectedItem = dropdown.getSelectedItem()
+        #dropdown = event.getSource()
+        selectedItem = self.dropdown.getSelectedItem()
         self.algorithm = selectedItem
         if selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)":
+            self.keyField.setEnabled(True)
+            self.keyField.setBackground(Color.WHITE)
             self.text_field2.setEnabled(True)
             self.text_field2.setBackground(Color.WHITE)
-            self.dropdown_encryption_scheme.setEnabled(False)
             self.pri_field.setEnabled(False)
             self.pri_field.setBackground(Color.LIGHT_GRAY)
+            self.dropdown_encryption_scheme.setEnabled(False)
+            self.dropdown.setEnabled(True)
         elif selectedItem == "RSA":
+            self.keyField.setEnabled(True)
+            self.keyField.setBackground(Color.WHITE)
             self.text_field2.setEnabled(False)
             self.text_field2.setBackground(Color.LIGHT_GRAY)
-            self.dropdown_encryption_scheme.setEnabled(True)
             self.pri_field.setEnabled(True)
             self.pri_field.setBackground(Color.WHITE)
+            self.dropdown_encryption_scheme.setEnabled(True)
+            self.dropdown.setEnabled(True)
         else:
+            self.keyField.setEnabled(True)
+            self.keyField.setBackground(Color.WHITE)
             self.text_field2.setEnabled(False)
             self.text_field2.setBackground(Color.LIGHT_GRAY)
-            self.dropdown_encryption_scheme.setEnabled(False)
             self.pri_field.setEnabled(False)
             self.pri_field.setBackground(Color.LIGHT_GRAY)
+            self.dropdown_encryption_scheme.setEnabled(False)
+            self.dropdown.setEnabled(True)
 
     def onSelectionScheme(self, event):
         dropdown = event.getSource()
         selectedItem = dropdown.getSelectedItem()
         self.rsaPadding = selectedItem
-        print(self.rsaPadding)
 
     def isEncryptButtonPressed(self):
         while True:
@@ -199,7 +207,7 @@ class RequestViewerGUI:
     def resetEncryptButton(self):
         self.encryptButtonPressed = False
 
-    def encrypt_action(self, text_field, dropdown):
+    def encrypt_action(self, keyField, dropdown):
         if self.updatedRequest and self.message:
             requestDecrypt = self.text_area2.getText()
             if "\n\n" in requestDecrypt:
@@ -338,19 +346,17 @@ class RequestViewerGUI:
                 JOptionPane.ERROR_MESSAGE
             )
 
-
-
-    def decrypt_action(self, button, text_field, dropdown):
+    def decrypt_action(self, button, keyField, dropdown):
         selectedItem = dropdown.getSelectedItem()
-        self.key = text_field.getText()
+        self.key = keyField.getText()
         self.EncryptKey = self.pri_field.getText()
         self.iv = self.text_field2.getText()
-        if text_field.getText() == "":
+        if keyField.getText() == "":
             if button.isSelected():
                 button.setSelected(False)
                 button.setText("Decrypt off")
                 self.decryptOn = False
-        elif len(text_field.getText()) not in [16, 24, 32] and (selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)" or selectedItem == "AES(ECB)"):
+        elif len(keyField.getText()) not in [16, 24, 32] and (selectedItem == "AES(CBC)" or selectedItem == "AES(GCM)" or selectedItem == "AES(ECB)"):
             JOptionPane.showMessageDialog(
                 None,
                 "Key must be 16 or 24 or 32 bytes",
@@ -369,11 +375,22 @@ class RequestViewerGUI:
                 button.setText("Decrypt on")
                 button.setSelected(True)
                 self.decryptOn = True
+                
+                self.keyField.setEnabled(False)
+                self.keyField.setBackground(Color.LIGHT_GRAY)
+                self.text_field2.setEnabled(False)
+                self.text_field2.setBackground(Color.LIGHT_GRAY)
+                self.pri_field.setEnabled(False)
+                self.pri_field.setBackground(Color.LIGHT_GRAY)
+                self.dropdown_encryption_scheme.setEnabled(False)
+                self.dropdown.setEnabled(False)
             else:
                 button.setText("Decrypt off")
+                selectedItem = dropdown.getSelectedItem()
+                self.onSelection(dropdown)
                 button.setSelected(False)
                 self.decryptOn = False
-
+        
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
         request_data = self.helpers.bytesToString(request_data).encode('ascii', 'ignore').decode('ascii')
