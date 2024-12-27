@@ -7,11 +7,11 @@ import base64
 
 class AESECB:
     def encrypt(self, plaintext, base64_key):
-	key = base64.b64decode(base64_key)
-	secret_key = SecretKeySpec(key, "AES")
-	cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-	cipher.init(Cipher.ENCRYPT_MODE, secret_key)
-	encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
+        key = base64.b64decode(base64_key)
+        secret_key = SecretKeySpec(key, "AES")
+        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secret_key)
+        encrypted_bytes = cipher.doFinal(plaintext.encode("utf-8"))
         return Base64.getEncoder().encodeToString(encrypted_bytes)
 
     def decrypt(self, ciphertext, base64_key):

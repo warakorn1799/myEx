@@ -8,21 +8,21 @@ class BurpExtender(IBurpExtender, IHttpListener):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
-        self.message_queue = Queue()  # Queue to store messages
-        self.is_processing_request = False  # Track request processing status
-        self.is_processing_response = False  # Track response processing status
+        self.message_queue = Queue()
+        self.is_processing_request = False
+        self.is_processing_response = False
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if toolFlag == IBurpExtenderCallbacks.TOOL_PROXY or toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER:
             if messageIsRequest:
-                if not self.is_processing_request:  # Check if request processing is not ongoing
+                if not self.is_processing_request:
                     self.is_processing_request = True
                     self.message_queue.put(('request', message))
                     self.processQueue()
                 else:
                     print("Request discarded because processing is already ongoing")
             else:
-                if not self.is_processing_response:  # Check if response processing is not ongoing
+                if not self.is_processing_response:
                     self.is_processing_response = True
                     self.message_queue.put(('response', message))
                     self.processQueue()
@@ -35,7 +35,6 @@ class BurpExtender(IBurpExtender, IHttpListener):
         while not self.message_queue.empty():
             message_type, message = self.message_queue.get()
             self.handleMessage(message_type, message)
-        # Reset status after processing
         self.is_processing_request = False
         self.is_processing_response = False
 

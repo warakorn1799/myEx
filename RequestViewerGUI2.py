@@ -213,77 +213,103 @@ class RequestViewerGUI:
                 header_array_list.add(line)
 
             body_str = str(body)
-	    encrypted = body_str
-            if self.decryptOn == True:
-		try:
+            encrypted = body_str
+            if self.decryptOn:
+                try:
                     if self.algorithm == "AES(ECB)":
-			aes = AESECB()
+                        aes = AESECB()
                         encrypted = aes.encrypt(body_str, self.key)
-                    if self.algorithm == "AES(CBC)":
+                    elif self.algorithm == "AES(CBC)":
                         aes = AESCBC()
                         encrypted = aes.encrypt(body_str, self.key, self.iv)
-                    if self.algorithm == "AES(GCM)":
+                    elif self.algorithm == "AES(GCM)":
                         aes = AESGCM()
                         encrypted = aes.encrypt(body_str, self.key, self.iv)
-                    if self.algorithm == "RSA":
+                    elif self.algorithm == "RSA":
                         if self.rsaPadding == "RAW":
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
-			    try:
+                            try:
                                 base64.b64decode(self.EncryptKey)
                             except Exception as e:
-                                JOptionPane.showMessageDialog(None,"Can't encrypt maybe key is incorrect","Error",JOptionPane.ERROR_MESSAGE)
-                            return
+                                JOptionPane.showMessageDialog(
+                                    None,
+                                    "Can't encrypt maybe key is incorrect",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                )
+                                return
                             public_key_base64 = self.EncryptKey
                             public_key = rsa.load_public_key_from_base64(public_key_base64)
                             encrypted = rsa.encryptRAW(public_key, body)
-                        if self.rsaPadding == "RAES-PKCS1-V1_5":
+                        elif self.rsaPadding == "RAES-PKCS1-V1_5":
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
-			    try:
+                            try:
                                 base64.b64decode(self.EncryptKey)
                             except Exception as e:
-                                JOptionPane.showMessageDialog(None,"Can't encrypt maybe key is incorrect","Error",JOptionPane.ERROR_MESSAGE)
-                            return
+                                JOptionPane.showMessageDialog(
+                                    None,
+                                    "Can't encrypt maybe key is incorrect",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                )
+                                return
                             public_key_base64 = self.EncryptKey
                             public_key = rsa.load_public_key_from_base64(public_key_base64)
                             encrypted = rsa.encryptPKCS1(public_key, body)
-                        if self.rsaPadding == "RSA-OAEP(SHA-256)":
+                        elif self.rsaPadding == "RSA-OAEP(SHA-256)":
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
-			    try:
+                            try:
                                 base64.b64decode(self.EncryptKey)
                             except Exception as e:
-                                JOptionPane.showMessageDialog(None,"Can't encrypt maybe key is incorrect","Error",JOptionPane.ERROR_MESSAGE)
-                            return
+                                JOptionPane.showMessageDialog(
+                                    None,
+                                    "Can't encrypt maybe key is incorrect",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                )
+                                return
                             public_key_base64 = self.EncryptKey
                             public_key = rsa.load_public_key_from_base64(public_key_base64)
                             encrypted = rsa.encryptOAEP_SHA256(public_key, body)
-                        if self.rsaPadding == "RSA-OAEP(SHA-384)":
+                        elif self.rsaPadding == "RSA-OAEP(SHA-384)":
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
-			    try:
+                            try:
                                 base64.b64decode(self.EncryptKey)
                             except Exception as e:
-                                JOptionPane.showMessageDialog(None,"Can't encrypt maybe key is incorrect","Error",JOptionPane.ERROR_MESSAGE)
-                            return
+                                JOptionPane.showMessageDialog(
+                                    None,
+                                    "Can't encrypt maybe key is incorrect",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                )
+                                return
                             public_key_base64 = self.EncryptKey
                             public_key = rsa.load_public_key_from_base64(public_key_base64)
                             encrypted = rsa.encryptOAEP_SHA384(public_key, body)
-                        if self.rsaPadding == "RSA-OAEP(SHA-512)":
+                        elif self.rsaPadding == "RSA-OAEP(SHA-512)":
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
-			    try:
+                            try:
                                 base64.b64decode(self.EncryptKey)
                             except Exception as e:
-                                JOptionPane.showMessageDialog(None,"Can't encrypt maybe key is incorrect","Error",JOptionPane.ERROR_MESSAGE)
-                            return
+                                JOptionPane.showMessageDialog(
+                                    None,
+                                    "Can't encrypt maybe key is incorrect",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                )
+                                return
                             public_key_base64 = self.EncryptKey
                             public_key = rsa.load_public_key_from_base64(public_key_base64)
                             encrypted = rsa.encryptOAEP_SHA512(public_key, body)
-		except (IllegalBlockSizeException, BadPaddingException, InvalidKeyException, Exception) as e:
-		    self.updatedRequest = self.helpers.buildHttpMessage(self.header, self.body)
+                except (IllegalBlockSizeException, BadPaddingException, InvalidKeyException, Exception) as e:
+                    self.updatedRequest = self.helpers.buildHttpMessage(self.header, self.body)
                     self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, self.header, self.body)
+
                 self.updatedRequest = self.helpers.buildHttpMessage(header_array_list, encrypted)
                 self.gui = EncryptGUI(self.helpers, self.message, self.updatedRequest, header, encrypted)
             else:
@@ -311,6 +337,8 @@ class RequestViewerGUI:
                 "Error",
                 JOptionPane.ERROR_MESSAGE
             )
+
+
 
     def decrypt_action(self, button, text_field, dropdown):
         selectedItem = dropdown.getSelectedItem()
@@ -358,132 +386,38 @@ class RequestViewerGUI:
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
-	if self.decryptOn:
+
+        if self.decryptOn:
             try:
-        	if self.algorithm == "AES(ECB)":
-            	    aes = AESECB()
+                if self.algorithm == "AES(ECB)":
+                    aes = AESECB()
                     decrypted_text = aes.decrypt(body, self.key)
                     decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
                     decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-        	elif self.algorithm == "AES(CBC)":
-            	    aes = AESCBC()
-            	    decrypted_text = aes.decrypt(body, self.key, self.iv)
-            	    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-            	    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-        	elif self.algorithm == "AES(GCM)":
-            	    aes = AESGCM()
-            	    decrypted_text = aes.decrypt(body, self.key, self.iv)
-            	    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-            	    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-            	elif self.algorithm == "RSA":
-                    if self.rsaPadding == "RAW":
-                        rsa = RSA()
-                        self.key = re.sub(r'\s+', '', self.key)
-                        private_key_base64 = self.key
-			try:
-                    	    base64.b64decode(private_key_base64)
-                	except Exception as e:
-			    decrypted_data = request_data2
-		            self.text_area2.setText(decrypted_data2)
-			    return
-                        private_key = rsa.load_private_key_from_base64(private_key_base64)
-                        decrypted_text = rsa.decryptRAW(private_key, body)
-                        decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                        decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-                    elif self.rsaPadding == "RAES-PKCS1-V1_5":
-                        rsa = RSA()
-                        self.key = re.sub(r'\s+', '', self.key)
-                        private_key_base64 = self.key
-			try:
-                            base64.b64decode(private_key_base64)
-                        except Exception as e:
-                            decrypted_data = request_data2
-                            self.text_area2.setText(decrypted_data2)
-                            return
-                        private_key = rsa.load_private_key_from_base64(private_key_base64)
-                        decrypted_text = rsa.decryptPKCS1(private_key, body)
-                        decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                        decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-                    elif self.rsaPadding == "RSA-OAEP(SHA-256)":
-                        rsa = RSA()
-                        self.key = re.sub(r'\s+', '', self.key)
-                        private_key_base64 = self.key
-                        try:
-                            base64.b64decode(private_key_base64)
-                        except Exception as e:
-                            decrypted_data = request_data2
-                            self.text_area2.setText(decrypted_data2)
-                            return
-			private_key = rsa.load_private_key_from_base64(private_key_base64)
-			decrypted_text = rsa.decryptOAEP_SHA256(private_key, body)
-                        decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                        decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-                    elif self.rsaPadding == "RSA-OAEP(SHA-384)":
-                        rsa = RSA()
-                        self.key = re.sub(r'\s+', '', self.key)
-                        private_key_base64 = self.key
-                        try:
-                            base64.b64decode(private_key_base64)
-                        except Exception as e:
-                            decrypted_data = request_data2
-                            self.text_area2.setText(decrypted_data2)
-                            return
-			private_key = rsa.load_private_key_from_base64(private_key_base64)
-			decrypted_text = rsa.decryptOAEP_SHA384(private_key, body)
-                        decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                        decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-                    elif self.rsaPadding == "RSA-OAEP(SHA-512)":
-                        rsa = RSA()
-                        self.key = re.sub(r'\s+', '', self.key)
-                        private_key_base64 = self.key
-                        try:
-                            base64.b64decode(private_key_base64)
-                        except Exception as e:
-                            decrypted_data = request_data2
-                            self.text_area2.setText(decrypted_data2)
-                            return
-			private_key = rsa.load_private_key_from_base64(private_key_base64)
-                        decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
-                        decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
-                        decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
-	    except (IllegalArgumentException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, Exception) as e:
-                decrypted_data2 = request_data
-            self.text_area2.setText(decrypted_data2)
-
-
-    def setResponseData(self, header, body, response):
-    	response_data = ("\n".join(header).encode("utf-8", "ignore").decode("utf-8") + "\n\n" + body.encode("utf-8", "ignore").decode("utf-8"))
-    	response_data = (self.helpers.bytesToString(response_data).encode("ascii", "ignore").decode("ascii"))
-    	self.text_area1.setText(response_data)
-    	self.top_label.setText("Your Response")
-
-    	self.header = header
-    	self.body = body
-    	self.updatedResponse = self.helpers.buildHttpMessage(header, body)
-    	self.response = response
-
-	if self.decryptOn:
-    	    try:
-	        if self.algorithm == "AES(ECB)":
-                    aes = AESECB()
-                    decrypted_text = aes.decrypt(body, self.key)
-                    decrypted_data2 = ("\n".join(header) + "\n\n" + decrypted_text)
-                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
-    	        elif self.algorithm == "AES(CBC)":
+                elif self.algorithm == "AES(CBC)":
                     aes = AESCBC()
                     decrypted_text = aes.decrypt(body, self.key, self.iv)
-                    decrypted_data2 = ("\n".join(header) + "\n\n" + decrypted_text)
-                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
-    	        elif self.algorithm == "AES(GCM)":
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                elif self.algorithm == "AES(GCM)":
                     aes = AESGCM()
                     decrypted_text = aes.decrypt(body, self.key, self.iv)
-                    decrypted_data2 = ("\n".join(header) + "\n\n" + decrypted_text)
-                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
-    	        elif self.algorithm == "RSA":
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+                elif self.algorithm == "RSA":
                     rsa = RSA()
                     self.key = re.sub(r'\s+', '', self.key)
                     private_key_base64 = self.key
+
+                    try:
+                        base64.b64decode(private_key_base64)
+                    except Exception as e:
+                        decrypted_data2 = request_data
+                        self.text_area2.setText(decrypted_data2)
+                        return
+
                     private_key = rsa.load_private_key_from_base64(private_key_base64)
+
                     if self.rsaPadding == "RAW":
                         decrypted_text = rsa.decryptRAW(private_key, body)
                     elif self.rsaPadding == "RAES-PKCS1-V1_5":
@@ -494,9 +428,75 @@ class RequestViewerGUI:
                         decrypted_text = rsa.decryptOAEP_SHA384(private_key, body)
                     elif self.rsaPadding == "RSA-OAEP(SHA-512)":
                         decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
-                    decrypted_data2 = ("\n".join(header) + "\n\n" + decrypted_text)
-                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
+
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = self.helpers.bytesToString(decrypted_data2).encode('ascii', 'ignore').decode('ascii')
+
             except (IllegalArgumentException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, Exception) as e:
-	        decrypted_data2 = response_data
-	    self.text_area2.setText(decrypted_data2)
+                decrypted_data2 = request_data
+
+            self.text_area2.setText(decrypted_data2)
+
+
+
+    def setResponseData(self, header, body, response):
+        response_data = (
+            "\n".join(header).encode("utf-8", "ignore").decode("utf-8")
+            + "\n\n"
+            + body.encode("utf-8", "ignore").decode("utf-8")
+        )
+        response_data = (
+            self.helpers.bytesToString(response_data)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+        )
+        self.text_area1.setText(response_data)
+        self.top_label.setText("Your Response")
+
+        self.header = header
+        self.body = body
+        self.updatedResponse = self.helpers.buildHttpMessage(header, body)
+        self.response = response
+
+        if self.decryptOn:
+            try:
+                if self.algorithm == "AES(ECB)":
+                    aes = AESECB()
+                    decrypted_text = aes.decrypt(body, self.key)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
+                elif self.algorithm == "AES(CBC)":
+                    aes = AESCBC()
+                    decrypted_text = aes.decrypt(body, self.key, self.iv)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
+                elif self.algorithm == "AES(GCM)":
+                    aes = AESGCM()
+                    decrypted_text = aes.decrypt(body, self.key, self.iv)
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
+                elif self.algorithm == "RSA":
+                    rsa = RSA()
+                    self.key = re.sub(r'\s+', '', self.key)
+                    private_key_base64 = self.key
+                    private_key = rsa.load_private_key_from_base64(private_key_base64)
+
+                    if self.rsaPadding == "RAW":
+                        decrypted_text = rsa.decryptRAW(private_key, body)
+                    elif self.rsaPadding == "RAES-PKCS1-V1_5":
+                        decrypted_text = rsa.decryptPKCS1(private_key, body)
+                    elif self.rsaPadding == "RSA-OAEP(SHA-256)":
+                        decrypted_text = rsa.decryptOAEP_SHA256(private_key, body)
+                    elif self.rsaPadding == "RSA-OAEP(SHA-384)":
+                        decrypted_text = rsa.decryptOAEP_SHA384(private_key, body)
+                    elif self.rsaPadding == "RSA-OAEP(SHA-512)":
+                        decrypted_text = rsa.decryptOAEP_SHA512(private_key, body)
+
+                    decrypted_data2 = "\n".join(header) + "\n\n" + decrypted_text
+                    decrypted_data2 = (self.helpers.bytesToString(decrypted_data2).encode("ascii", "ignore").decode("ascii"))
+            except (IllegalArgumentException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, Exception,) as e:
+                decrypted_data2 = response_data
+                
+            self.text_area2.setText(decrypted_data2)
+
 
