@@ -1,48 +1,40 @@
 from burp import IBurpExtender, IHttpListener, IBurpExtenderCallbacks
 from RequestViewerGUI2 import RequestViewerGUI
-import time
 from Queue import Queue
+import time
+import threading
 
 class BurpExtender(IBurpExtender, IHttpListener):
     def registerExtenderCallbacks(self, callbacks):
         self.helpers = callbacks.getHelpers()
         callbacks.registerHttpListener(self)
         self.gui = RequestViewerGUI(self.helpers)
-        self.message_queue = Queue()
-        self.is_processing_request = False
-        self.is_processing_response = False
+
+        self.messageQueue = Queue()
+        self.index = 0
+        self.processing_lock = threading.Lock()  # Add a lock to synchronize queue processing
 
     def processHttpMessage(self, toolFlag, messageIsRequest, message):
         if toolFlag == IBurpExtenderCallbacks.TOOL_PROXY or toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER:
+            self.index += 1
             if messageIsRequest:
-                if not self.is_processing_request:
-                    self.is_processing_request = True
-                    self.message_queue.put(('request', message))
-                    self.processQueue()
-                else:
-                    print("Request discarded because processing is already ongoing")
+                self.messageQueue.put(('request', message, self.index))
             else:
-                if not self.is_processing_response:
-                    self.is_processing_response = True
-                    self.message_queue.put(('response', message))
-                    self.processQueue()
-                else:
-                    print("Response discarded because processing is already ongoing")
-        else:
-            print("Skipped because it's not from Proxy or Repeater")
-
+                self.messageQueue.put(('response', message, self.index))
+            self.processQueue()
+    
     def processQueue(self):
-        while not self.message_queue.empty():
-            message_type, message = self.message_queue.get()
-            self.handleMessage(message_type, message)
-        self.is_processing_request = False
-        self.is_processing_response = False
-
-    def handleMessage(self, message_type, message):
-        if message_type == 'request':
-            self.handleRequest(message)
-        elif message_type == 'response':
-            self.handleResponse(message)
+        with self.processing_lock:  # Acquire lock before processing
+            if not self.messageQueue.empty():
+                item = self.messageQueue.get()
+                messageType, message, index = item
+                if messageType == 'request':
+                    print("Processed request:", message, "at index", self.index)
+                    self.handleRequest(message)
+                elif messageType == 'response':
+                    print("Processed response:", message, "at index", self.index)
+                    self.handleResponse(message)
+                self.index += 1
 
     def handleRequest(self, message):
         request = message.getRequest()
@@ -59,7 +51,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
             responseHeaders = responseInfo.getHeaders()
             responseBodyOffset = responseInfo.getBodyOffset()
             responseBody = response[responseBodyOffset:].tostring()
-            self.gui.setResponseData(responseHeaders, responseBody, message)
+            self.gui.setResponseData(responseHeaders, responseBody, response)
             self.waitForSendButtonPress()
 
     def waitForEncryptButtonPress(self):
