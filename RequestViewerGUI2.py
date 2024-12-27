@@ -9,7 +9,30 @@ import time
 import re
 from EncryptGUI import EncryptGUI
 from EncryptDecrypt import AESECB, AESCBC, AESGCM, RSA
+from java.awt.event import KeyEvent, KeyListener
 
+class PlaceholderDocument(KeyListener):
+    def __init__(self, textField, placeholder):
+        self.textField = textField
+        self.placeholder = placeholder
+        self.isPlaceholder = True
+        self.textField.addKeyListener(self)
+
+    def keyPressed(self, event):
+        if event.getKeyCode() != KeyEvent.VK_ENTER and self.isPlaceholder:
+            self.textField.setText('')
+            self.textField.setForeground(Color.BLACK)
+            self.isPlaceholder = False
+
+    def keyReleased(self, event):
+        if not self.textField.getText():
+            self.textField.setText(self.placeholder)
+            self.textField.setForeground(Color.GRAY)
+            self.isPlaceholder = True
+
+    def keyTyped(self, event):
+        pass
+    
 class RequestViewerGUI:
     def __init__(self, helpers):
         self.helpers = helpers
@@ -75,6 +98,8 @@ class RequestViewerGUI:
 	
         self.keyField = JTextField(30)
         self.keyField.setFont(font)
+        self.keyField.setText('key must be Base64 for AES and RSA (PEM)')
+        self.keyField.setForeground(Color.GRAY)
 
         label_pri = JLabel("Encrypt KEY")
         label_pri.setFont(font)
@@ -152,6 +177,8 @@ class RequestViewerGUI:
         self.frame.add(panel_middle, BorderLayout.CENTER)
         self.frame.add(panel_bottom, BorderLayout.SOUTH)
         self.frame.setVisible(True)
+        
+        self.keyField.addKeyListener(PlaceholderDocument(self.keyField, "key must be Base64 for AES and RSA (PEM)."))
 
     def onSelection(self, event):
         #dropdown = event.getSource()
