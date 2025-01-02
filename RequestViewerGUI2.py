@@ -49,6 +49,8 @@ class RequestViewerGUI:
         self.key = None
         self.EncryptKey = None
         self.iv = None
+	self.reqData = None
+	self.resData = None
         self.rsaPadding = "RAW"
         self.gui = EncryptGUI('', '', '', '', '')
 
@@ -357,11 +359,15 @@ class RequestViewerGUI:
             else:
                 self.updatedRequest = None
                 self.message = None
+		self.reqData = None
+        	self.resData = None
                 self.text_area1.setText("--None--")
                 self.text_area2.setText("--None--")
         elif self.updatedResponse and self.response:
             self.encryptButtonPressed = True
             self.updatedResponse = None
+	    self.reqData = None
+            self.resData = None
             self.response = None
             self.text_area1.setText("--None--")
             self.text_area2.setText("--None--")
@@ -411,13 +417,19 @@ class RequestViewerGUI:
                 self.pri_field.setBackground(Color.LIGHT_GRAY)
                 self.dropdown_encryption_scheme.setEnabled(False)
                 self.dropdown.setEnabled(False)
+   		if self.message is not None or self.response is not None:
+		    if self.message is None:
+			self.setResponseData(self.header, self.body, self.response)
+		    if self.response is None:
+			self.setRequestData(self.header, self.body, self.message)
+
             else:
                 button.setText("Decrypt off")
                 selectedItem = dropdown.getSelectedItem()
                 self.onSelection(dropdown)
                 button.setSelected(False)
                 self.decryptOn = False
-        
+
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
         request_data = self.helpers.bytesToString(request_data).encode('ascii', 'ignore').decode('ascii')
@@ -430,7 +442,7 @@ class RequestViewerGUI:
 
         self.updatedRequest = self.helpers.buildHttpMessage(header, body)
         self.message = message
-
+	
         if self.decryptOn:
             try:
                 if self.algorithm == "AES(ECB)":
@@ -480,7 +492,6 @@ class RequestViewerGUI:
                 decrypted_data2 = request_data
 
             self.text_area2.setText(decrypted_data2)
-
 
 
     def setResponseData(self, header, body, response):
@@ -542,5 +553,7 @@ class RequestViewerGUI:
                 decrypted_data2 = response_data
                 
             self.text_area2.setText(decrypted_data2)
+	    self.resData = decrypted_data2
+
 
 

@@ -12,7 +12,7 @@ class EncryptGUI:
         self.dialog = JDialog()
         self.dialog.setTitle("Jython GUI Example")
         self.dialog.setSize(400, 300)
-        self.dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE)
+        self.dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE)
         self.dialog.setModal(True)
 
         self.text_area = JTextArea(10, 30)
