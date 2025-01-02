@@ -429,6 +429,7 @@ class RequestViewerGUI:
                 self.onSelection(dropdown)
                 button.setSelected(False)
                 self.decryptOn = False
+                self.text_area2.setText("--None--")
 
     def setRequestData(self, header, body, message):
         request_data = "\n".join(header) + "\n\n" + body
