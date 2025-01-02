@@ -49,8 +49,8 @@ class RequestViewerGUI:
         self.key = None
         self.EncryptKey = None
         self.iv = None
-	self.reqData = None
-	self.resData = None
+        self.reqData = None
+        self.resData = None
         self.rsaPadding = "RAW"
         self.gui = EncryptGUI('', '', '', '', '')
 
@@ -267,7 +267,10 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                base64.b64decode(self.EncryptKey)
+                                from java.util import Base64
+                                print('here')
+                                Base64.getDecoder().decode(self.EncryptKey)
+                                #base64.b64decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -359,14 +362,14 @@ class RequestViewerGUI:
             else:
                 self.updatedRequest = None
                 self.message = None
-		self.reqData = None
-        	self.resData = None
+                self.reqData = None
+                self.resData = None
                 self.text_area1.setText("--None--")
                 self.text_area2.setText("--None--")
         elif self.updatedResponse and self.response:
             self.encryptButtonPressed = True
             self.updatedResponse = None
-	    self.reqData = None
+            self.reqData = None
             self.resData = None
             self.response = None
             self.text_area1.setText("--None--")
@@ -417,11 +420,11 @@ class RequestViewerGUI:
                 self.pri_field.setBackground(Color.LIGHT_GRAY)
                 self.dropdown_encryption_scheme.setEnabled(False)
                 self.dropdown.setEnabled(False)
-   		if self.message is not None or self.response is not None:
-		    if self.message is None:
-			self.setResponseData(self.header, self.body, self.response)
-		    if self.response is None:
-			self.setRequestData(self.header, self.body, self.message)
+                if self.message is not None or self.response is not None:
+                    if self.message is None:
+                        self.setResponseData(self.header, self.body, self.response)
+                    if self.response is None:
+                        self.setRequestData(self.header, self.body, self.message)
 
             else:
                 button.setText("Decrypt off")
@@ -467,8 +470,11 @@ class RequestViewerGUI:
                     private_key_base64 = self.key
 
                     try:
-                        base64.b64decode(private_key_base64)
+                        from java.util import Base64
+                        Base64.getDecoder().decode(private_key_base64)
+                        #base64.b64decode(private_key_base64)
                     except Exception as e:
+                        print('b65:',private_key_base64)
                         decrypted_data2 = request_data
                         self.text_area2.setText(decrypted_data2)
                         return
@@ -554,7 +560,7 @@ class RequestViewerGUI:
                 decrypted_data2 = response_data
                 
             self.text_area2.setText(decrypted_data2)
-	    self.resData = decrypted_data2
+            self.resData = decrypted_data2
 
 
 
