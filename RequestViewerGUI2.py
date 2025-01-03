@@ -5,6 +5,7 @@ from javax.swing import JFrame, JPanel, JTextArea, JScrollPane, JLabel, JTextFie
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font
 from javax.swing.border import EmptyBorder
 from java.util import ArrayList
+from java.util import Base64
 import time
 import re
 from EncryptGUI import EncryptGUI
@@ -267,10 +268,7 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                from java.util import Base64
-                                print('here')
                                 Base64.getDecoder().decode(self.EncryptKey)
-                                #base64.b64decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -286,7 +284,7 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                base64.b64decode(self.EncryptKey)
+                                Base64.getDecoder().decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -302,7 +300,7 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                base64.b64decode(self.EncryptKey)
+                                Base64.getDecoder().decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -318,7 +316,7 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                base64.b64decode(self.EncryptKey)
+                                Base64.getDecoder().decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -334,7 +332,7 @@ class RequestViewerGUI:
                             rsa = RSA()
                             self.EncryptKey = re.sub(r'\s+', '', self.EncryptKey)
                             try:
-                                base64.b64decode(self.EncryptKey)
+                                Base64.getDecoder().decode(self.EncryptKey)
                             except Exception as e:
                                 JOptionPane.showMessageDialog(
                                     None,
@@ -470,11 +468,8 @@ class RequestViewerGUI:
                     private_key_base64 = self.key
 
                     try:
-                        from java.util import Base64
                         Base64.getDecoder().decode(private_key_base64)
-                        #base64.b64decode(private_key_base64)
                     except Exception as e:
-                        print('b65:',private_key_base64)
                         decrypted_data2 = request_data
                         self.text_area2.setText(decrypted_data2)
                         return
